@@ -1,0 +1,86 @@
+{
+  "success": true,
+  "data": {
+    "id": "fiorentina-vs-pisa-2265289",
+    "title": "Fiorentina vs Pisa",
+    "category": "football",
+    "date": 1771867800000,
+    "popular": true,
+    "poster": "https://sportsrc.org/img/sport/proxy/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTtw5kAJqWCEImeuFFs8VWmzBgZhPiG4g9JEMZQhEEQ7n0FgSCn2Gz6KMCpRc35ellkemtFqi9MFAA.webp",
+    "teams": {
+      "home": {
+        "name": "Fiorentina",
+        "badge": "https://sportsrc.org/img/sport/badge/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTt0z1Rvdqyw8xAkhxDMQqpuBIhuIACYhtBmCBTqQJxDAIUmfFFzBl4ReaIdNaYJ2NEQgA.webp"
+      },
+      "away": {
+        "name": "Pisa",
+        "badge": "https://sportsrc.org/img/sport/badge/GwZg7AZpYEZgHCAjAJgCzrAThFlBWSUYAUwVmDW2nmAmD32FrWGHXbeAENgBjUgg5sSdTt0z1Rvdqyw8xAkulyCWIFGD4huIEiG0oDIGCDOJTKAhSZ8UXMGXhF5o+01phHY0RCA.webp"
+      }
+    },
+    "sources": [
+      {
+        "id": "ppv-fiorentina-vs-pisa",
+        "streamNo": 1,
+        "language": "English",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/Ys-U3Xp4gOa90g4jkHotC3R58FEmG_sugIe8fguuFp6rD2o2UE7Wt_RW6buJCBVLInda7M8-UuxcUpekfN2I7YqdJy96knygr5PD6rNpIK8_deNIreQ0bpOsdJY79pi0eciU7JkRGnPfYM_5oQV_WQ/",
+        "source": "admin",
+        "viewers": 92
+      },
+      {
+        "id": "ppv-fiorentina-vs-pisa",
+        "streamNo": 2,
+        "language": "English",
+        "hd": false,
+        "embedUrl": "https://embed.streamapi.cc/sport/HrlfpeGL0QIHKNf6oCFSQKpNJR3X17NoT9a5ndWEEGtyaSw4YlaXq3-PK6SI5NRpxVWK_nZyWMOspFAtEtkd5eat2PSKJ3JVPzdJk9cZwWxrpDlKH729xuaPps2zxvOpIWI8IQajkXbHZvFk1rp4Sw/",
+        "source": "admin",
+        "viewers": 58
+      },
+      {
+        "id": "fiorentina-vs-pisa-football-1378117",
+        "streamNo": 3,
+        "language": "",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/3fPCy2X_TTeO9I6zgz37CowLIjms2xeA-QtAMI9EkGNddMtM6quJ2Jth-tZz2WnK8Fi5IDJ1i87GgiKVQdYwELz1GkoX-TNypTF3kqSsDf-yIGN1VUOYnanojdP93nKqCPDSX34k4371x4qrvlTlGg/",
+        "source": "echo",
+        "viewers": 168
+      },
+      {
+        "id": "fiorentina-vs-pisa-football-1378117",
+        "streamNo": 4,
+        "language": "",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/9EoyphnaqQQV0zAGqhAPZgbHj4MZtJ7tQLG8o5kfSuYmOZdWedVTVdwCut5FS-gmPz0ne0faxLtqEu8J9ufSShPdz2vtylXllxcprtvkFcPAjU5wkO9nK4w2XP_R_KG4Sa7q7e_z_aHxx3iAogYDxg/",
+        "source": "echo",
+        "viewers": 73
+      },
+      {
+        "id": "fiorentina-vs-pisa-football-1378117",
+        "streamNo": 5,
+        "language": "",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/qLP9I86LguwvmXng4g-I3b-yQoyhUXO9-PR0Ut4oUcM7UOrMP6LFQ-L8OUe9ABVnrxkAr4rrcbb8xxutXycKlhAN_LJoc2em21Vu-3QNrQ24dWEMOfL_mRK4EUWpHvL_1K0HD4f1a9IMtC32p1UNUQ/",
+        "source": "echo",
+        "viewers": 2
+      },
+      {
+        "id": "fiorentina-vs-pisa-football-1378117",
+        "streamNo": 6,
+        "language": "",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/PQEYp8dl1sjdyX2eN4N4uHQwTXNjJATorljahT5DAYMGnd59WGsUYTmqgQpLT7HpCc_DYncjO-FFiidAiLsamOCsdjVjTIYDXKE64QPZNhaxTl9cbOTcxn4EEj8JIZWEuM3JyajFvQU4WdSOMaM1ZQ/",
+        "source": "echo",
+        "viewers": 6
+      },
+      {
+        "id": "fiorentina-vs-pisa-football-1378117",
+        "streamNo": 7,
+        "language": "",
+        "hd": true,
+        "embedUrl": "https://embed.streamapi.cc/sport/wUJTneOrhFEk0KvcayuWoHKi7gVfR4lRIYyylEY4tfTbVyBStOdl7qUWEDRo1f9UA5qKehFP-zDMUr5KYknAsVMJgUuBS1TxLHOWZZSpKFgG79u_fpHn3zjiGktYgK4J4js9kn9-kf70UN-Nf_VHQg/",
+        "source": "echo",
+        "viewers": 12
+      }
+    ]
+  }
+}

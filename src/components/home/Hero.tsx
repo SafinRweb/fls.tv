@@ -3,15 +3,17 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useLoading } from "@/components/layout/LoadingProvider";
 
 export function Hero() {
+    const { isPageLoaded } = useLoading();
     return (
         <section className="relative min-h-[450px] md:min-h-[550px] flex items-center justify-center overflow-hidden pb-16 pt-24 md:pb-20 md:pt-28">
 
             {/* Subtle glow specifically for the hero content */}
             <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={isPageLoaded ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ duration: 1.5 }}
                 className="absolute inset-x-0 top-0 h-[80vh] bg-[radial-gradient(ellipse_at_top,rgba(0,212,255,0.15)_0%,transparent_70%)] z-0 pointer-events-none"
             />
@@ -20,7 +22,7 @@ export function Hero() {
 
                 <motion.h1
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
+                    animate={isPageLoaded ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
                     className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black leading-[0.9] tracking-tight uppercase"
                 >
@@ -33,7 +35,7 @@ export function Hero() {
 
                 <motion.p
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
+                    animate={isPageLoaded ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="mt-8 text-lg md:text-xl text-soft max-w-2xl text-balance"
                 >
@@ -42,9 +44,9 @@ export function Hero() {
 
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
+                    animate={isPageLoaded ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
                     transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    className="mt-10 mb-12"
+                    className="mt-10 mb-5"
                 >
                     <Link
                         href="/matches"

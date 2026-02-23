@@ -81,6 +81,23 @@ const isMatchLive = (dateMs: number): boolean => {
     return dateMs <= now && now - dateMs < 3 * 60 * 60 * 1000;
 };
 
+/** Calculate approximate live football minute including halftime offset */
+export const calculateLiveMinute = (dateMs: number, now: number): string | undefined => {
+    if (!isMatchLive(dateMs)) return undefined;
+
+    const elapsed = Math.floor((now - dateMs) / 60000);
+
+    if (elapsed <= 45) {
+        return "Just Started";
+    } else if (elapsed > 45 && elapsed <= 60) {
+        return "Halftime";
+    } else if (elapsed > 60 && elapsed <= 105) {
+        return "Second Half";
+    } else {
+        return "90+";
+    }
+};
+
 /** Convert raw API match object to our Match interface */
 const mapRawMatch = (raw: any): Match => {
     const dateMs = typeof raw.date === "number" ? raw.date : parseInt(raw.date) || 0;
@@ -95,12 +112,8 @@ const mapRawMatch = (raw: any): Match => {
         status = "finished";
     }
 
-    // Approximate live minute based on elapsed time
-    let liveMinute: string | undefined;
-    if (status === "live") {
-        const elapsed = Math.floor((now - dateMs) / 60000);
-        liveMinute = elapsed > 90 ? "90+'" : `${elapsed}'`;
-    }
+    // Approximate live minute based on elapsed time with halftime adjustments
+    const liveMinute = calculateLiveMinute(dateMs, now);
 
     const homeName = raw.teams?.home?.name || "TBD";
     const awayName = raw.teams?.away?.name || "TBD";
@@ -230,13 +243,13 @@ export interface MatchDetail {
 
 export const getMatchDetail = async (matchId: string): Promise<MatchDetail | null> => {
     // First try the detail endpoint
-    const data = await fetchApi<any>(`data=detail&id=${encodeURIComponent(matchId)}`);
+    const data = await fetchApi<any>(`data=detail&id=${encodeURIComponent(matchId)}&category=football`);
 
     if (data && data.data) {
         const d = data.data;
         const sources = Array.isArray(d.sources)
             ? d.sources.map((s: any, idx: number) => ({
-                id: s.id || `src-${idx}`,
+                id: s.id ? `${s.id}-${idx}` : `src-${idx}`,
                 name: s.name || `Source ${idx + 1}`,
                 url: s.url || s.embedUrl || s.src || "",
             }))
@@ -249,11 +262,7 @@ export const getMatchDetail = async (matchId: string): Promise<MatchDetail | nul
         else if (dateMs > now) status = "upcoming";
         else status = "finished";
 
-        let liveMinute: string | undefined;
-        if (status === "live") {
-            const elapsed = Math.floor((now - dateMs) / 60000);
-            liveMinute = elapsed > 90 ? "90+'" : `${elapsed}'`;
-        }
+        const liveMinute = calculateLiveMinute(dateMs, now);
 
         return {
             id: matchId,

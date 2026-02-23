@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Search, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useLoading } from "@/components/layout/LoadingProvider";
 import clsx from "clsx";
 
 const NAV_LINKS = [
@@ -19,6 +20,9 @@ export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
     const [prevPathname, setPrevPathname] = useState(pathname);
+    const { isPageLoaded } = useLoading();
+
+    const isHome = pathname === "/";
 
     // Close mobile menu on route change
     useEffect(() => {
@@ -37,9 +41,20 @@ export function Navbar() {
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full pt-4 px-4 sm:px-6 lg:px-8">
+            <motion.header
+                initial={{ y: -50, opacity: 0 }}
+                animate={isPageLoaded ? { y: 0, opacity: 1 } : { y: -50, opacity: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className={clsx(
+                    "top-0 z-50 pt-4 px-4 sm:px-6 lg:px-8",
+                    isHome ? "fixed inset-x-0" : "sticky w-full"
+                )}
+            >
                 <div className="max-w-[1440px] mx-auto">
-                    <div className="glass rounded-full h-16 flex items-center justify-between px-6 lg:px-10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] relative overflow-hidden">
+                    <div className={clsx(
+                        "rounded-full h-16 flex items-center justify-between px-6 lg:px-10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] relative overflow-hidden",
+                        isHome ? "bg-white/5 backdrop-blur-lg border border-white/10" : "glass"
+                    )}>
 
                         {/* Shimmer Effect */}
                         <AnimatePresence>
@@ -135,7 +150,7 @@ export function Navbar() {
                         )}
                     </AnimatePresence>
                 </div>
-            </header>
+            </motion.header>
 
             {/* Search Overlay */}
             <AnimatePresence>

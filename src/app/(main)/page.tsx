@@ -10,6 +10,7 @@ export default async function Home() {
     getLiveMatches(),
     getUpcomingMatches(),
     getAllLeagues(),
+    new Promise(resolve => setTimeout(resolve, 2000)) // Enforce 2s safety minimum load time
   ]);
 
   return (
