@@ -1,7 +1,5 @@
 # fost.tv - Live Football. Redefined.
 
-![fost.tv Showcase](https://flstv.vercel.app/og-image.png)
-
 fost.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
 
 ## ✨ Features
