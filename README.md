@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# fost.tv - Live Football. Redefined.
 
-## Getting Started
+![fost.tv Showcase](https://flstv.vercel.app/og-image.png)
 
-First, run the development server:
+fost.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Live Match Tracking**: Real-time status updates and live minute trackers for ongoing games.
+- **Immersive Stream Player**: A dedicated, full-viewport cinema mode for watching matches with ambient background blurring to match the broadcast.
+- **Chronological Sorting**: Smart scheduling automatically bubbles the soonest upcoming matches to the top of your feed.
+- **Global Leagues Hub**: Browse through a curated gallery of the world's top football leagues with high-quality crests.
+- **Premium Dark UI**: A meticulously crafted interface heavily inspired by modern sports broadcasting UI standards, featuring neon glows, glassmorphism, and strict grid structures.
+- **Responsive Design**: Flawless layout scaling from ultra-wide desktop monitors down to mobile devices.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project was built with a cutting-edge front-end stack to ensure maximum performance and developer experience:
 
-## Learn More
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Library**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS v3](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Deployment**: [Vercel](https://vercel.com/)
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ensure you have Node.js 18+ installed.
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SafinRweb/fls.tv.git
+   cd fls.tv
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🏗️ Architecture Notes
+
+- **Data Layer**: The application features a robust internal data-fetching layer (`src/lib/api.ts`) that standardizes raw match data into clean TypeScript interfaces (`Match`, `Team`, `League`). It utilizes Next.js App Router's built-in fetch cache mechanisms for optimal performance and rate-limit protection.
+- **Component Design System**: Reusable UI primitives (like `MatchCard`, navigation pills, and glowing buttons) enforce strict design system rules across all pages.
+- **Dynamic League Detection**: The frontend intelligently maps match titles and team names to their parent league competitions to display the correct global crests dynamically.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
