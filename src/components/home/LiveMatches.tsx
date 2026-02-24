@@ -10,12 +10,12 @@ export function LiveMatches({ matches }: { matches: Match[] }) {
     const { isPageLoaded } = useLoading();
 
     return (
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+        <section className="max-w-[1440px] mx-auto py-12 relative">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={isPageLoaded ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="flex items-center mb-8 relative z-10"
+                className="flex items-center mb-8 relative z-10 px-4 sm:px-6 lg:px-8"
             >
                 <div className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-full px-5 py-2 backdrop-blur-md">
                     <span className="w-3 h-3 rounded-full bg-live animate-pulse shadow-[0_0_10px_rgba(255,43,43,0.8)]" />
@@ -31,7 +31,7 @@ export function LiveMatches({ matches }: { matches: Match[] }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={isPageLoaded ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 px-2 sm:px-6 lg:px-8"
                 >
                     {matches.map((match) => (
                         <MatchCard
@@ -49,37 +49,39 @@ export function LiveMatches({ matches }: { matches: Match[] }) {
                     ))}
                 </motion.div>
             ) : (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={isPageLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="relative w-full h-56 md:h-64 rounded-[20px] overflow-hidden border border-white/5"
-                >
-                    {/* Blurry stadium background */}
-                    <img
-                        src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1200&q=80"
-                        alt="Stadium"
-                        onError={(e) => {
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1518605389456-02e07120fc6c?w=1200&q=80";
-                        }}
-                        className="absolute inset-0 w-full h-full object-cover object-center scale-110 blur-sm"
-                    />
-                    <div className="absolute inset-0 bg-base/80 backdrop-blur-md" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_60%)]" />
+                <div className="px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={isPageLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="relative w-full h-56 md:h-64 rounded-[20px] overflow-hidden border border-white/5"
+                    >
+                        {/* Blurry stadium background */}
+                        <img
+                            src="https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=1200&q=80"
+                            alt="Stadium"
+                            onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1518605389456-02e07120fc6c?w=1200&q=80";
+                            }}
+                            className="absolute inset-0 w-full h-full object-cover object-center scale-110 blur-sm"
+                        />
+                        <div className="absolute inset-0 bg-base/80 backdrop-blur-md" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_60%)]" />
 
-                    {/* Content */}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-                        <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-5">
-                            <span className="w-3 h-3 rounded-full bg-white/20" />
+                        {/* Content */}
+                        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+                            <div className="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-5">
+                                <span className="w-3 h-3 rounded-full bg-white/20" />
+                            </div>
+                            <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-2 uppercase tracking-wider">
+                                No Matches Currently Live
+                            </h3>
+                            <p className="text-soft text-sm max-w-md">
+                                Check back later or browse upcoming matches below.
+                            </p>
                         </div>
-                        <h3 className="text-xl md:text-2xl font-display font-bold text-white mb-2 uppercase tracking-wider">
-                            No Matches Currently Live
-                        </h3>
-                        <p className="text-soft text-sm max-w-md">
-                            Check back later or browse upcoming matches below.
-                        </p>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </div>
             )}
         </section>
     );
