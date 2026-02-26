@@ -1,10 +1,9 @@
-# fost.tv - Live Football. Redefined.
+# fls.tv - Live Football. In Home.
 
-fost.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
+fls.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
 
 ## ✨ Features
 
-- **Live Match Tracking**: Real-time status updates and live minute trackers for ongoing games.
 - **Immersive Stream Player**: A dedicated, full-viewport cinema mode for watching matches with ambient background blurring to match the broadcast.
 - **Chronological Sorting**: Smart scheduling automatically bubbles the soonest upcoming matches to the top of your feed.
 - **Global Leagues Hub**: Browse through a curated gallery of the world's top football leagues with high-quality crests.
