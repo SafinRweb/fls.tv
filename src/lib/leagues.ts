@@ -1,12 +1,31 @@
 // League data for matching team names to leagues
-// Logos are from Wikimedia Commons
+// Logos are from Wikimedia Commons & API-Sports
 
 export interface LeagueInfo {
     logo: string;
     teams: string[];
 }
 
+// 1. Strict UEFA Season Rosters (Separates UCL, UEL, and UECL)
+const UEFA_TEAMS: Record<string, string[]> = {
+    "Champions League": [
+        "Real Madrid", "Man City", "Manchester City", "Bayern", "PSG", "Liverpool", "Inter", "Dortmund", "Leipzig", "Barcelona", "Leverkusen", "Atletico", "Atlético", "Atalanta", "Juventus", "Benfica", "Arsenal", "Club Brugge", "Shakhtar", "AC Milan", "Feyenoord", "Sporting CP", "PSV", "Dinamo Zagreb", "Salzburg", "Lille", "Crvena Zvezda", "Young Boys", "Celtic", "Slovan Bratislava", "Monaco", "Sparta Prague", "Aston Villa", "Bologna", "Girona", "Stuttgart", "Sturm Graz", "Brest"
+    ],
+    "Europa League": [
+        "Roma", "Man United", "Manchester United", "Porto", "Ajax", "Rangers", "Eintracht", "Lazio", "Tottenham", "Slavia Prague", "Real Sociedad", "AZ Alkmaar", "Braga", "Olympiacos", "Lyon", "PAOK", "Fenerbahce", "Fenerbahçe", "Maccabi", "Ferencvaros", "Ferencváros", "Qarabag", "Galatasaray", "Bodo/Glimt", "Union SG", "Dynamo Kyiv", "Ludogorets", "Midtjylland", "Malmo", "Athletic Club", "Hoffenheim", "Nice", "Anderlecht", "Twente", "Besiktas", "Beşiktaş", "FCSB", "RFS", "Elfsborg", "Viktoria Plzen", "Viktoria Plzeň"
+    ],
+    "Conference League": [
+        "Chelsea", "Fiorentina", "Betis", "Heidenheim", "Copenhagen", "St. Gallen", "Panathinaikos", "Omonoia", "Vitoria", "Astana", "Legia", "Jagiellonia", "Olimpija", "Hearts", "LASK", "Molde", "Rapid Wien", "APOEL", "Noah", "Celje", "Drita", "Rijeka", "Samsunspor", "Shkendija", "Shkëndija", "Zrinjski"
+    ]
+};
+
+// 2. Main League Render Data
 export const LEAGUE_DATA: Record<string, LeagueInfo> = {
+    // --- UEFA Competitions ---
+    "Champions League": { logo: "https://media.api-sports.io/football/leagues/2.png", teams: [] },
+    "Europa League": { logo: "https://media.api-sports.io/football/leagues/3.png", teams: [] },
+    "Conference League": { logo: "https://media.api-sports.io/football/leagues/848.png", teams: [] },
+
     // --- Top 6 ---
     "Premier League": {
         logo: "https://media.api-sports.io/football/leagues/39.png",
@@ -27,10 +46,6 @@ export const LEAGUE_DATA: Record<string, LeagueInfo> = {
     "Ligue 1": {
         logo: "https://media.api-sports.io/football/leagues/61.png",
         teams: ["PSG", "Paris Saint-Germain", "Marseille", "Lyon", "Monaco", "AS Monaco", "Lille", "Lens", "Rennes", "Stade Rennais", "Nice", "Strasbourg", "Brest", "Nantes", "Toulouse", "Angers", "Auxerre", "AJ Auxerre", "Lorient", "Le Havre", "Metz", "Paris FC", "Guingamp", "Le Mans"],
-    },
-    "Champions League": {
-        logo: "https://media.api-sports.io/football/leagues/2.png",
-        teams: [],
     },
 
     // --- Global Leagues ---
@@ -69,36 +84,54 @@ export const LEAGUE_DATA: Record<string, LeagueInfo> = {
 };
 
 /**
- * Given home and away team names, determine the league.
- * Returns { leagueName, leagueLogo } or defaults to "Other".
+ * Intelligent Match Classifier
+ * Separates domestic overlaps from distinct UEFA Competitions.
  */
 export function detectLeague(
     homeTeam: string,
     awayTeam: string,
     title?: string
 ): { leagueName: string; leagueLogo: string | undefined } {
-    const matchString = `${homeTeam} ${awayTeam} ${title || ""}`.toLowerCase();
+    const titleString = (title || "").toLowerCase();
+    const home = (homeTeam || "").toLowerCase();
+    const away = (awayTeam || "").toLowerCase();
 
-    // Check Champions League keyword first
-    if (matchString.includes("champions league") || matchString.includes("ucl")) {
-        return {
-            leagueName: "Champions League",
-            leagueLogo: LEAGUE_DATA["Champions League"].logo,
-        };
+    // 1. Title Keyword Override
+    if (titleString.includes("champions league") || titleString.includes("ucl")) return { leagueName: "Champions League", leagueLogo: LEAGUE_DATA["Champions League"].logo };
+    if (titleString.includes("europa league") || titleString.includes("uel")) return { leagueName: "Europa League", leagueLogo: LEAGUE_DATA["Europa League"].logo };
+    if (titleString.includes("conference league") || titleString.includes("uecl")) return { leagueName: "Conference League", leagueLogo: LEAGUE_DATA["Conference League"].logo };
+
+    // 2. Identify Domestic Leagues
+    let homeDomestic = "Other";
+    let awayDomestic = "Other";
+
+    for (const [league, data] of Object.entries(LEAGUE_DATA)) {
+        if (league.includes("League") && !league.includes("Premier")) continue; // Skip UEFA buckets
+        if (data.teams.some((team) => home.includes(team.toLowerCase()))) homeDomestic = league;
+        if (data.teams.some((team) => away.includes(team.toLowerCase()))) awayDomestic = league;
     }
 
-    // Match by team name
-    for (const [league, data] of Object.entries(LEAGUE_DATA)) {
-        if (league === "Champions League") continue;
-        if (data.teams.some((team) => matchString.includes(team.toLowerCase()))) {
-            return { leagueName: league, leagueLogo: data.logo };
+    // 3. Domestic Match Check (Both teams must be in the same domestic league)
+    if (homeDomestic !== "Other" && homeDomestic === awayDomestic) {
+        return { leagueName: homeDomestic, leagueLogo: LEAGUE_DATA[homeDomestic].logo };
+    }
+
+    // 4. European Cup Check (Cross-League or Unknowns)
+    // If the domestic leagues are different, it's an international match. Let's find which one!
+    for (const [tournament, teams] of Object.entries(UEFA_TEAMS)) {
+        if (teams.some((team) => home.includes(team.toLowerCase()) || away.includes(team.toLowerCase()))) {
+            return { leagueName: tournament, leagueLogo: LEAGUE_DATA[tournament].logo };
         }
     }
+
+    // 5. Domestic Cup Fallback (e.g., Premier League vs 4th Division unknown team)
+    if (homeDomestic !== "Other") return { leagueName: homeDomestic, leagueLogo: LEAGUE_DATA[homeDomestic].logo };
+    if (awayDomestic !== "Other") return { leagueName: awayDomestic, leagueLogo: LEAGUE_DATA[awayDomestic].logo };
 
     return { leagueName: "Other", leagueLogo: undefined };
 }
 
-/** Get all known leagues with logos (for sidebar filters, etc.) */
+/** Get all known leagues with logos */
 export function getAllKnownLeagues() {
     return Object.entries(LEAGUE_DATA)
         .filter(([name]) => name !== "Other")

@@ -29,7 +29,7 @@ export function Hero() {
                     <span className="text-white drop-shadow-neon">Live</span> <br className="md:hidden" />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-soft">Football.</span><br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-600 drop-shadow-neon-strong">
-                        Redefined.
+                        In Home.
                     </span>
                 </motion.h1>
 
@@ -39,7 +39,7 @@ export function Hero() {
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="mt-8 text-lg md:text-xl text-soft max-w-2xl text-balance"
                 >
-                    The most completely immersive sports broadcast experience. Real-time stats, cinematic streams, and no delay.
+                    The most completely immersive sports broadcast experience. Zero lag, cinematic streams, and no delay.
                 </motion.p>
 
                 <motion.div
