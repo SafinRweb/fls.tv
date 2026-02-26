@@ -1,4 +1,4 @@
-# fls.tv - Live Football. In Home.
+# fls.tv | Live Football In Home.
 
 fls.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
 

@@ -27,9 +27,9 @@ export function Hero() {
                     className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-black leading-[0.9] tracking-tight uppercase"
                 >
                     <span className="text-white drop-shadow-neon">Live</span> <br className="md:hidden" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-soft">Football.</span><br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-soft">Football</span><br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-600 drop-shadow-neon-strong">
-                        In Home.
+                        In Home
                     </span>
                 </motion.h1>
 

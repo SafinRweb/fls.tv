@@ -18,8 +18,8 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "fls.tv | Live Football. Redefined.",
-  description: "Premium live football streaming platform with real-time updates and cinematic experience.",
+  title: "fls.tv | Live Football In Home.",
+  description: "Premium live football streaming platform with zero lag and cinematic experience.",
 };
 
 export default function RootLayout({
