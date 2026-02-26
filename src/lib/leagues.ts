@@ -105,12 +105,14 @@ export function detectLeague(
     if (titleString.includes("europa league") || titleString.includes("uel")) return { leagueName: "Europa League", leagueLogo: LEAGUE_DATA["Europa League"].logo };
     if (titleString.includes("conference league") || titleString.includes("uecl")) return { leagueName: "Conference League", leagueLogo: LEAGUE_DATA["Conference League"].logo };
 
-    // 2. Identify Domestic Leagues
+    // 2. Identify Domestic Leagues (Includes Saudi Pro League fix)
     let homeDomestic = "Other";
     let awayDomestic = "Other";
 
     for (const [league, data] of Object.entries(LEAGUE_DATA)) {
-        if (league.includes("League") && !league.includes("Premier")) continue; // Skip UEFA buckets
+        // Strictly skip ONLY the UEFA buckets during the domestic check
+        if (["Champions League", "Europa League", "Conference League"].includes(league)) continue;
+
         if (data.teams.some((team) => home.includes(team.toLowerCase()))) homeDomestic = league;
         if (data.teams.some((team) => away.includes(team.toLowerCase()))) awayDomestic = league;
     }
@@ -120,15 +122,22 @@ export function detectLeague(
         return { leagueName: homeDomestic, leagueLogo: LEAGUE_DATA[homeDomestic].logo };
     }
 
-    // 4. European Cup Check (Cross-League or Unknowns)
-    // If the domestic leagues are different, it's an international match.
-    for (const [tournament, teams] of Object.entries(UEFA_TEAMS)) {
-        if (teams.some((team) => home.includes(team.toLowerCase()) || away.includes(team.toLowerCase()))) {
-            return { leagueName: tournament, leagueLogo: LEAGUE_DATA[tournament].logo };
+    // 4. European Cup Check (The "Two-Team Verification" Fix)
+    // Check if both teams actually exist in our UEFA rosters
+    const isHomeUEFA = Object.values(UEFA_TEAMS).some(teams => teams.some(t => home.includes(t.toLowerCase())));
+    const isAwayUEFA = Object.values(UEFA_TEAMS).some(teams => teams.some(t => away.includes(t.toLowerCase())));
+
+    // It is a UEFA match ONLY IF both teams are in Europe, OR they are from different known domestic countries
+    if ((isHomeUEFA && isAwayUEFA) || (homeDomestic !== "Other" && awayDomestic !== "Other" && homeDomestic !== awayDomestic)) {
+        for (const [tournament, teams] of Object.entries(UEFA_TEAMS)) {
+            if (teams.some((team) => home.includes(team.toLowerCase()) || away.includes(team.toLowerCase()))) {
+                return { leagueName: tournament, leagueLogo: LEAGUE_DATA[tournament].logo };
+            }
         }
     }
 
-    // 5. Domestic Cup Fallback
+    // 5. Domestic Cup & 'B-Team' Fallback
+    // If Sporting CP (UCL) plays Leixoes (Unknown), it skips UEFA and safely falls back to Liga Portugal here.
     if (homeDomestic !== "Other") return { leagueName: homeDomestic, leagueLogo: LEAGUE_DATA[homeDomestic].logo };
     if (awayDomestic !== "Other") return { leagueName: awayDomestic, leagueLogo: LEAGUE_DATA[awayDomestic].logo };
 

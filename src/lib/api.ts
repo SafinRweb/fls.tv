@@ -38,14 +38,15 @@ const BASE_URL = "https://api.sportsrc.org";
 
 // ——— Priority Leagues for sorting ———
 export const PRIORITY_LEAGUES = [
+    "Champions League",
+    "Europa League",
     "Premier League",
     "La Liga",
     "Serie A",
     "Bundesliga",
     "Ligue 1",
-    "MLS",
     "Saudi Pro League",
-    "Champions League",
+    "MLS",
 ];
 
 // ——— Generic fetch wrapper ———
