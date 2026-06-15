@@ -3,6 +3,7 @@ import { getLiveMatches, getUpcomingMatches, getAllLeagues } from "@/lib/api";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Filter } from "lucide-react";
+import { AdBanner } from "@/components/ui/AdBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,11 @@ export default async function MatchesPage({
                             );
                         })}
                     </nav>
+
+                    {/* Position B: Sidebar vertical Ad (hidden on mobile, visible on desktop) */}
+                    <div className="mt-8 justify-center hidden md:flex">
+                        <AdBanner type="sidebar" />
+                    </div>
                 </div>
             </aside>
 
@@ -110,6 +116,9 @@ export default async function MatchesPage({
                         </div>
                     )}
                 </div>
+
+                {/* Position C: Matches page list divider horizontal Ad */}
+                <AdBanner type="horizontal" />
 
                 {/* Upcoming Matches Section */}
                 <div>

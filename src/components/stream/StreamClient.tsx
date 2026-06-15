@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Server, Globe2, ChevronLeft, MapPin, AlertTriangle } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
+import { AdBanner } from "@/components/ui/AdBanner";
 
 interface StreamClientProps {
     match: Match;
@@ -184,13 +185,23 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                 </header>
 
                 {/* Center Layout Container */}
-                <main className="relative flex-1 flex flex-col lg:flex-row items-stretch px-4 pt-4 sm:pt-6 lg:pt-8 pb-24 z-10 w-full overflow-y-auto lg:overflow-hidden overflow-x-hidden">
+                <main className="relative flex-1 flex flex-col lg:flex-row items-center lg:justify-center px-4 pt-4 sm:pt-6 lg:pt-8 pb-6 z-10 w-full overflow-y-auto lg:overflow-hidden overflow-x-hidden">
 
                     {/* Left/Center: Video Player OR Huge text */}
                     <div className="flex-1 w-full flex flex-col items-center justify-center relative lg:pr-8 lg:h-full lg:overflow-hidden">
                         {liveData.status === "live" ? (
                             <div className="w-full max-w-5xl flex flex-col space-y-4 lg:space-y-6">
-                                <div className="w-full aspect-video bg-[#0a0a0a] rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,212,255,0.05)] border border-white/10 relative z-40">
+                                {/* Smartlink Backup Player Link */}
+                                <a
+                                    href="https://www.effectivecpmnetwork.com/az16ezdd5q?key=9a7b35e9b85a0bf205768ccb3366a7dc"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-accent to-blue-600 hover:from-accent hover:to-blue-700 text-white font-display font-black uppercase tracking-widest text-xs sm:text-sm shadow-[0_0_20px_rgba(0,212,255,0.2)] hover:shadow-[0_0_35px_rgba(0,212,255,0.4)] transition-all animate-pulse duration-1000 z-40 text-center cursor-pointer"
+                                >
+                                    <span>⚡ WATCH IN FULL HD (FAST BACKUP SERVER)</span>
+                                </a>
+
+                                <div className="w-full aspect-video lg:max-h-[calc(100vh-280px)] bg-[#0a0a0a] rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,212,255,0.05)] border border-white/10 relative z-40">
                                     {!isIframeLoaded && (
                                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                             <div className="flex flex-col items-center text-soft">
@@ -215,14 +226,8 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                     )}
                                 </div>
 
-                                {/* Caution Message */}
-                                <div className="flex items-start lg:items-center space-x-3 p-3 sm:p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-200/80 text-xs sm:text-sm">
-                                    <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 text-orange-400 mt-0.5 lg:mt-0" />
-                                    <p className="leading-relaxed">
-                                        <strong className="text-orange-400 font-semibold uppercase tracking-wider text-xs mr-2">Caution:</strong>
-                                        <span className="text-white/70">External stream servers may contain ads. Please close any random pop-up tabs that open and avoid downloading or installing anything.</span>
-                                    </p>
-                                </div>
+                                {/* Position A: Stream page under player ad */}
+                                <AdBanner type="horizontal" />
                             </div>
                         ) : (
                             <motion.div
@@ -238,13 +243,13 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                     </div>
 
                     {/* Right side: Servers */}
-                    <div className="w-full lg:w-[28rem] xl:w-96 flex flex-col mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0 lg:h-full lg:overflow-hidden">
+                    <div className="w-full lg:w-[28rem] xl:w-96 flex flex-col mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0 lg:h-full lg:overflow-hidden lg:justify-center">
                         <div className={clsx("flex items-center space-x-2 text-white/50 uppercase tracking-widest text-xs font-bold mb-3", activeServersList.length === 0 ? "hidden sm:flex" : "flex")}>
                             <Server className="w-4 h-4" />
                             <span>Available Streams</span>
                         </div>
 
-                        <div className="flex-1 flex flex-col space-y-3 w-full lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-10 lg:pb-0">
+                        <div className="flex-1 flex flex-col space-y-3 w-full lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-4">
                             {activeServersList.length > 0 ? activeServersList.map((server, idx) => (
                                 <button
                                     key={server.id || idx}
@@ -287,58 +292,22 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                     </span>
                                 </div>
                             </button>
-                        )) : (
-                            <div className="hidden sm:block w-full p-6 rounded-xl border border-white/5 bg-layer/20 backdrop-blur-md text-center">
-                                <p className="text-soft text-sm uppercase tracking-widest font-bold">No streams available yet</p>
-                                <p className="text-white/30 text-xs mt-2">Streams become available when the match goes live.</p>
-                            </div>
-                        )}
+                            )) : (
+                                <div className="hidden sm:block w-full p-6 rounded-xl border border-white/5 bg-layer/20 backdrop-blur-md text-center">
+                                    <p className="text-soft text-sm uppercase tracking-widest font-bold">No streams available yet</p>
+                                    <p className="text-white/30 text-xs mt-2">Streams become available when the match goes live.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sidebar Ad (Vertical 160x300) */}
+                        <div className="mt-2 flex justify-center shrink-0 pb-10 lg:pb-0">
+                            <AdBanner type="160x300" />
                         </div>
                     </div>
                 </main>
 
-                {/* Bottom Footer Area (Absolute) */}
-                <footer className="absolute bottom-0 inset-x-0 p-6 lg:p-10 flex items-end justify-between z-10 w-full">
 
-                    {/* Bottom Left: Demo Metric Text (Hidden on mobile to prevent overlap) */}
-                    <div className="hidden sm:flex flex-row items-center space-x-4 lg:space-x-6 opacity-60 font-mono text-xs text-accent" suppressHydrationWarning>
-                        <div className="flex items-center space-x-2">
-                            <Activity className="w-4 h-4 animate-pulse" />
-                            <span className="hidden lg:inline">Receiving data stream...</span>
-                        </div>
-                        <div className="flex items-center space-x-4 lg:space-x-6">
-                            <span>SERVER_REGION: {activeServer?.region?.toUpperCase() || "Asia"}</span>
-                            <span>LATENCY: 24ms</span>
-                            <span>PACKETS: OPTIMAL</span>
-                        </div>
-                    </div>
-
-
-
-                    {/* Bottom Right: Live Minute OR Date */}
-                    <div className="text-right ml-auto">
-                        {liveData.status === "live" ? (
-                            <div className="hidden lg:flex flex-col items-end">
-                                <span className="text-4xl lg:text-5xl font-display font-bold text-accent drop-shadow-neon text-right">
-                                    {liveData.liveMinute || "LIVE"}
-                                </span>
-                                <span className="text-soft uppercase tracking-widest text-xs font-bold mt-1">
-                                    Match Time
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-end">
-                                <span className="text-2xl font-display font-bold text-white">
-                                    {new Date(match.timestamp).toLocaleDateString()}
-                                </span>
-                                <span className="text-soft uppercase tracking-widest text-xs font-bold mt-1">
-                                    Scheduled
-                                </span>
-                            </div>
-                        )}
-                    </div>
-
-                </footer>
             </div>
 
         </div>

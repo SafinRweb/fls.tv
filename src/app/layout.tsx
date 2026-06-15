@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Oswald } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,6 +39,17 @@ export default function RootLayout({
         <div className="flex-grow flex flex-col">
           {children}
         </div>
+
+        {/* Adsterra Popunder */}
+        <Script 
+          src="https://pl29757567.effectivecpmnetwork.com/a9/1b/97/a91b9725da5d701ed1e28dbdeedac1a2.js"
+          strategy="afterInteractive"
+        />
+        {/* Adsterra Social Bar */}
+        <Script 
+          src="https://pl29757570.effectivecpmnetwork.com/36/2a/1d/362a1db63ab722b8c2e62906a1b253b4.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
