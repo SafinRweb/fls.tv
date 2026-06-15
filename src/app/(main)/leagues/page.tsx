@@ -30,7 +30,6 @@ export default async function LeaguesPage() {
 
                         <div className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-[0_4px_20px_rgba(0,0,0,0.2)] overflow-hidden">
                             {league.logo ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
                                 <img src={league.logo} alt={league.name} className="w-full h-full object-contain mix-blend-multiply p-2" />
                             ) : (
                                 <Trophy className="w-8 h-8 text-base/50" />

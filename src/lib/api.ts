@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { detectLeague, getAllKnownLeagues } from "./leagues";
 export interface Team {
     id: string | number;
@@ -230,7 +229,7 @@ export interface MatchDetail {
     id: string;
     title: string;
     poster?: string;
-    sources: { id: string; name: string; url: string }[];
+    sources: { id: string; name: string; url: string; hd?: boolean; viewers?: number }[];
     homeTeam: Team;
     awayTeam: Team;
     status: "live" | "upcoming" | "finished";
@@ -251,8 +250,10 @@ export const getMatchDetail = async (matchId: string): Promise<MatchDetail | nul
         const sources = Array.isArray(d.sources)
             ? d.sources.map((s: any, idx: number) => ({
                 id: s.id ? `${s.id}-${idx}` : `src-${idx}`,
-                name: s.name || `Source ${idx + 1}`,
+                name: s.language || s.name || `Source ${idx + 1}`,
                 url: s.url || s.embedUrl || s.src || "",
+                hd: s.hd ?? false,
+                viewers: s.viewers ?? 0,
             }))
             : [];
 

@@ -4,12 +4,12 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { Filter } from "lucide-react";
 
-export const revalidate = 60; // 60 seconds
+export const dynamic = "force-dynamic";
 
 export default async function MatchesPage({
     searchParams,
 }: {
-    searchParams: { league?: string };
+    searchParams: Promise<{ league?: string }>;
 }) {
     const [liveMatches, upcomingMatches, leagues] = await Promise.all([
         getLiveMatches(),
@@ -17,7 +17,8 @@ export default async function MatchesPage({
         getAllLeagues(),
     ]);
 
-    const selectedLeague = searchParams.league || "all";
+    const resolvedParams = await searchParams;
+    const selectedLeague = resolvedParams.league || "all";
 
     const filteredLive =
         selectedLeague === "all"

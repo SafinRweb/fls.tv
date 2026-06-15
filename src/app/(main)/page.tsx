@@ -3,7 +3,7 @@ import { LiveMatches } from "@/components/home/LiveMatches";
 import { UpcomingMatches } from "@/components/home/UpcomingMatches";
 import { getLiveMatches, getUpcomingMatches, getAllLeagues } from "@/lib/api";
 
-export const revalidate = 60; // 60 seconds
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [liveMatches, upcomingMatches, leagues] = await Promise.all([

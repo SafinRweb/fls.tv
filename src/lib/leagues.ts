@@ -29,6 +29,17 @@ export const LEAGUE_DATA: Record<string, LeagueInfo> = {
     "Champions League": { logo: "https://media.api-sports.io/football/leagues/2.png", teams: [] },
     "Europa League": { logo: "https://media.api-sports.io/football/leagues/3.png", teams: [] },
     "Conference League": { logo: "https://media.api-sports.io/football/leagues/848.png", teams: [] },
+    "World Cup": {
+        logo: "https://media.api-sports.io/football/leagues/1.png",
+        teams: [
+            "Argentina", "France", "Croatia", "Morocco", "Netherlands", "England", "Brazil", "Portugal",
+            "Spain", "Japan", "Senegal", "South Korea", "Australia", "Switzerland", "USA", "United States",
+            "Poland", "Germany", "Ecuador", "Cameroon", "Uruguay", "Tunisia", "Mexico", "Belgium",
+            "Ghana", "Saudi Arabia", "Iran", "Costa Rica", "Denmark", "Serbia", "Wales", "Canada",
+            "Cape Verde", "Italy", "Colombia", "Sweden", "Chile", "Ukraine", "Turkey", "Egypt", "Algeria",
+            "Nigeria", "Austria", "Hungary", "Scotland", "Norway", "Peru", "Venezuela", "Paraguay", "Bolivia"
+        ],
+    },
 
     // --- Top 6 ---
     "Premier League": {
@@ -104,6 +115,7 @@ export function detectLeague(
     if (titleString.includes("champions league") || titleString.includes("ucl")) return { leagueName: "Champions League", leagueLogo: LEAGUE_DATA["Champions League"].logo };
     if (titleString.includes("europa league") || titleString.includes("uel")) return { leagueName: "Europa League", leagueLogo: LEAGUE_DATA["Europa League"].logo };
     if (titleString.includes("conference league") || titleString.includes("uecl")) return { leagueName: "Conference League", leagueLogo: LEAGUE_DATA["Conference League"].logo };
+    if (titleString.includes("world cup") || titleString.includes("worldcup") || titleString.includes("fifa")) return { leagueName: "World Cup", leagueLogo: LEAGUE_DATA["World Cup"].logo };
 
     // 2. Identify Domestic Leagues (Includes Saudi Pro League fix)
     let homeDomestic = "Other";

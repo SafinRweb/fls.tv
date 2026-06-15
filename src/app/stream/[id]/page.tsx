@@ -1,19 +1,13 @@
 import { getMatchDetail } from "@/lib/api";
 import { detectLeague } from "@/lib/leagues";
 import { notFound } from "next/navigation";
-import nextDynamic from "next/dynamic";
-
-// Skip SSR for StreamClient to avoid hydration mismatches
-// (framer-motion animations + dynamic match data cause server/client HTML diffs)
-const StreamClient = nextDynamic(
-    () => import("@/components/stream/StreamClient").then((mod) => mod.StreamClient),
-    { ssr: false }
-);
+import { StreamClient } from "@/components/stream/StreamClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function StreamPage({ params }: { params: { id: string } }) {
-    const detail = await getMatchDetail(params.id);
+export default async function StreamPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const detail = await getMatchDetail(id);
 
     if (!detail) {
         notFound();
@@ -47,11 +41,12 @@ export default async function StreamPage({ params }: { params: { id: string } })
     // Convert sources to the server shape StreamClient expects
     const servers = detail.sources.map((s, idx) => ({
         id: s.id || `src-${idx}`,
-        name: s.name || `Source ${idx + 1}`,
+        name: s.name,
         url: s.url,
-        quality: idx === 0 ? "1080p" : "720p",
+        quality: s.hd ? "HD" : "SD",
         latency: idx === 0 ? "low" : "normal",
         region: idx === 0 ? "Primary" : `Backup ${idx}`,
+        viewers: s.viewers || 0,
     }));
 
     return (

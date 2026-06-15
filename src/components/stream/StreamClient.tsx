@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { calculateLiveMinute, type Match } from "@/lib/api";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Activity, Server, Globe2, ChevronLeft, MapPin, AlertTriangle } from "lucide-react";
 import clsx from "clsx";
+import Link from "next/link";
 
 interface StreamClientProps {
     match: Match;
@@ -15,12 +16,16 @@ interface StreamClientProps {
         quality: string;
         latency: string;
         region: string;
+        viewers?: number;
     }[];
 }
 
 export function StreamClient({ match, servers }: StreamClientProps) {
+    const [mounted, setMounted] = useState(false);
+    const [activeServersList, setActiveServersList] = useState(servers);
     const [activeServer, setActiveServer] = useState(servers[0]);
     const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+    const [autoSwitchToast, setAutoSwitchToast] = useState<string | null>(null);
     const [liveData, setLiveData] = useState({
         homeScore: match.homeScore,
         awayScore: match.awayScore,
@@ -28,7 +33,11 @@ export function StreamClient({ match, servers }: StreamClientProps) {
         status: match.status
     });
 
-    // Poll for live score updates every 30 seconds if the match is live
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Poll for live score updates and stream health every 30 seconds if the match is live
     useEffect(() => {
         if (liveData.status !== "live") return;
 
@@ -54,6 +63,31 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                             liveMinute,
                             status
                         });
+
+                        // Dynamic stream validation & auto-switching logic
+                        if (Array.isArray(d.sources)) {
+                            const newServers = d.sources.map((s: any, idx: number) => ({
+                                id: s.id ? `${s.id}-${idx}` : `src-${idx}`,
+                                name: s.language || s.name || `Source ${idx + 1}`,
+                                url: s.url || s.embedUrl || s.src || "",
+                                quality: s.hd ? "HD" : "SD",
+                                latency: idx === 0 ? "low" : "normal",
+                                region: idx === 0 ? "Primary" : `Backup ${idx}`,
+                                viewers: s.viewers || 0,
+                            }));
+
+                            setActiveServersList(newServers);
+
+                            // Detect if the current active server was removed or went offline
+                            const stillExists = newServers.some((srv: any) => srv.url === activeServer.url);
+                            if (!stillExists && newServers.length > 0) {
+                                const nextBackup = newServers[0];
+                                setAutoSwitchToast(`Server offline. Auto-switching to ${nextBackup.name}...`);
+                                setActiveServer(nextBackup);
+                                setIsIframeLoaded(false);
+                                setTimeout(() => setAutoSwitchToast(null), 5000);
+                            }
+                        }
                     }
                 }
             } catch {
@@ -62,13 +96,40 @@ export function StreamClient({ match, servers }: StreamClientProps) {
         }, 30000);
 
         return () => clearInterval(interval);
-    }, [match.id, liveData.status]);
+    }, [match.id, liveData.status, activeServer.url]);
+
+    if (!mounted) {
+        return (
+            <div className="w-screen h-screen bg-base flex items-center justify-center text-soft">
+                <div className="flex flex-col items-center">
+                    <Activity className="w-10 h-10 mb-3 animate-pulse opacity-20" />
+                    <span className="text-[10px] uppercase tracking-widest opacity-50">Loading Stream...</span>
+                </div>
+            </div>
+        );
+    }
 
     // Use the match poster from the API, or a fallback
     const bgImage = match.poster || `https://images.unsplash.com/photo-1518605389456-02e07120fc6c?w=1920&q=80&auto=format&fit=crop&sig=${match.id}`;
 
     return (
         <div className="relative w-full h-screen bg-base text-white selection:bg-accent selection:text-base overflow-hidden">
+            
+            {/* Auto Switch Toast Notification */}
+            <AnimatePresence>
+                {autoSwitchToast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, x: "-50%" }}
+                        animate={{ opacity: 1, y: 0, x: "-50%" }}
+                        exit={{ opacity: 0, y: -20, x: "-50%" }}
+                        className="fixed top-24 left-1/2 -translate-x-1/2 z-[60] bg-orange-500 border border-orange-400 text-white font-display font-bold uppercase tracking-wider text-xs px-6 py-3.5 rounded-full shadow-[0_0_30px_rgba(249,115,22,0.4)] flex items-center gap-3 backdrop-blur-md"
+                    >
+                        <span className="w-2.5 h-2.5 bg-white rounded-full animate-ping" />
+                        <span>{autoSwitchToast}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="relative w-full h-full flex flex-col">
 
                 {/* Background layer */}
@@ -83,12 +144,12 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                 {/* Top Bar: Nav Back, League, Team Names, Live Indicator */}
                 <header className="relative w-full shrink-0 p-4 sm:p-6 lg:p-10 flex flex-wrap items-center justify-between gap-4 z-20">
                     <div className="flex items-center gap-4 sm:space-x-6">
-                        <a
+                        <Link
                             href="/"
                             className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:-translate-x-1 transition-all backdrop-blur cursor-pointer"
                         >
                             <ChevronLeft className="w-6 h-6" />
-                        </a>
+                        </Link>
                         <div className="flex flex-col">
                             <span className="text-sm font-bold uppercase tracking-widest text-accent">
                                 {match.leagueName}
@@ -123,10 +184,10 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                 </header>
 
                 {/* Center Layout Container */}
-                <main className="relative flex-1 flex flex-col lg:flex-row items-center lg:justify-center px-4 pt-4 sm:pt-8 lg:pt-12 pb-32 z-10 w-full overflow-y-auto overflow-x-hidden">
+                <main className="relative flex-1 flex flex-col lg:flex-row items-stretch px-4 pt-4 sm:pt-6 lg:pt-8 pb-24 z-10 w-full overflow-y-auto lg:overflow-hidden overflow-x-hidden">
 
                     {/* Left/Center: Video Player OR Huge text */}
-                    <div className="flex-1 w-full flex flex-col items-center justify-center relative lg:pr-8">
+                    <div className="flex-1 w-full flex flex-col items-center justify-center relative lg:pr-8 lg:h-full lg:overflow-hidden">
                         {liveData.status === "live" ? (
                             <div className="w-full max-w-5xl flex flex-col space-y-4 lg:space-y-6">
                                 <div className="w-full aspect-video bg-[#0a0a0a] rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,212,255,0.05)] border border-white/10 relative z-40">
@@ -177,40 +238,51 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                     </div>
 
                     {/* Right side: Servers */}
-                    <div className="w-full lg:w-[28rem] xl:w-96 flex flex-col space-y-3 mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0">
-                        <div className={clsx("flex items-center space-x-2 text-white/50 uppercase tracking-widest text-xs font-bold mb-2", servers.length === 0 ? "hidden sm:flex" : "flex")}>
+                    <div className="w-full lg:w-[28rem] xl:w-96 flex flex-col mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0 lg:h-full lg:overflow-hidden">
+                        <div className={clsx("flex items-center space-x-2 text-white/50 uppercase tracking-widest text-xs font-bold mb-3", activeServersList.length === 0 ? "hidden sm:flex" : "flex")}>
                             <Server className="w-4 h-4" />
                             <span>Available Streams</span>
                         </div>
 
-                        {servers.length > 0 ? servers.map((server, idx) => (
-                            <button
-                                key={server.id || idx}
-                                onClick={() => setActiveServer(server)}
-                                className={clsx(
-                                    "w-full text-left p-4 rounded-xl border backdrop-blur-md transition-all duration-300 group flex items-center justify-between",
-                                    activeServer?.id === server.id
-                                        ? "bg-accent/10 border-accent shadow-neon"
-                                        : "bg-layer/40 border-white/10 hover:border-white/30 hover:bg-layer/60"
-                                )}
-                            >
-                                <div className="flex flex-col">
-                                    <span className={clsx(
-                                        "font-bold font-display text-lg",
-                                        activeServer?.id === server.id ? "text-accent" : "text-white"
-                                    )}>{server.name}</span>
-                                    <span className="text-xs text-soft mt-1 flex items-center">
-                                        <Globe2 className="w-3 h-3 mr-1" /> {server.region}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/10 text-white">
-                                        {server.quality}
-                                    </span>
-                                    <span className={clsx(
-                                        "text-[10px] mt-2 font-bold uppercase tracking-widest",
-                                        server.latency === "low" ? "text-green-400" : "text-yellow-400"
-                                    )}>
+                        <div className="flex-1 flex flex-col space-y-3 w-full lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-10 lg:pb-0">
+                            {activeServersList.length > 0 ? activeServersList.map((server, idx) => (
+                                <button
+                                    key={server.id || idx}
+                                    onClick={() => {
+                                        if (activeServer.id !== server.id) {
+                                            setActiveServer(server);
+                                            setIsIframeLoaded(false);
+                                        }
+                                    }}
+                                    className={clsx(
+                                        "w-full text-left p-4 rounded-xl border backdrop-blur-md transition-all duration-300 group flex items-center justify-between",
+                                        activeServer?.id === server.id
+                                            ? "bg-accent/10 border-accent shadow-neon"
+                                            : "bg-layer/40 border-white/10 hover:border-white/30 hover:bg-layer/60"
+                                    )}
+                                >
+                                    <div className="flex flex-col min-w-0 pr-2">
+                                        <span className={clsx(
+                                            "font-bold font-display text-base truncate",
+                                            activeServer?.id === server.id ? "text-accent" : "text-white"
+                                        )}>{server.name}</span>
+                                        <span className="text-[11px] text-soft mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                            <span className="flex items-center"><Globe2 className="w-3 h-3 mr-1" /> {server.region}</span>
+                                            {server.viewers ? (
+                                                <span className="text-accent font-mono font-medium">
+                                                    • {server.viewers >= 1000 ? `${(server.viewers / 1000).toFixed(1)}k` : server.viewers} watching
+                                                </span>
+                                            ) : null}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col items-end shrink-0">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/10 text-white">
+                                            {server.quality}
+                                        </span>
+                                        <span className={clsx(
+                                            "text-[10px] mt-2 font-bold uppercase tracking-widest",
+                                            server.latency === "low" ? "text-green-400" : "text-yellow-400"
+                                        )}>
                                         {server.latency} latency
                                     </span>
                                 </div>
@@ -221,6 +293,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                 <p className="text-white/30 text-xs mt-2">Streams become available when the match goes live.</p>
                             </div>
                         )}
+                        </div>
                     </div>
                 </main>
 
