@@ -234,8 +234,6 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                         <RefreshCw className="h-4 w-4" aria-hidden="true" /> Reload player
                                     </button>
                                 </div>
-                                {/* Position A: Stream page under player ad */}
-                                <AdBanner placement="streamBelow" />
                             </div>
                         ) : (
                             <motion.div
@@ -248,10 +246,11 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                 </h2>
                             </motion.div>
                         )}
+                        <AdBanner placement="streamBelow" />
                     </div>
 
                     {/* Right side: Servers */}
-                    <div className="w-full lg:w-[28rem] xl:w-96 flex flex-col mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0 lg:h-full lg:overflow-hidden lg:justify-center">
+                    <div className="w-full lg:w-[28rem] xl:w-96 lg:shrink-0 lg:self-start flex flex-col mt-8 lg:mt-0 lg:ml-8 xl:ml-12 pb-12 lg:pb-0">
                         <div className={clsx("flex items-center space-x-2 text-white/50 uppercase tracking-widest text-xs font-bold mb-3", activeServersList.length === 0 ? "hidden sm:flex" : "flex")}>
                             <Server className="w-4 h-4" />
                             <span>Available Streams</span>
@@ -259,7 +258,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
 
                         {pollingError && <p role="status" className="mb-3 text-xs text-soft">{activeServer ? "Could not refresh the source list. Your current connection is unchanged." : "Could not refresh the source list. We will check again automatically."}</p>}
                         {!activeServer && <button type="button" onClick={() => void refreshRef.current?.()} className="mb-3 text-sm text-accent">Check for streams</button>}
-                        <div className="flex-1 flex flex-col space-y-3 w-full lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-4">
+                        <div className="flex flex-col space-y-3 w-full lg:max-h-[55vh] lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-4">
                             {activeServersList.length > 0 ? activeServersList.map((server, idx) => (
                                 <button
                                     key={server.id || idx}
@@ -301,7 +300,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                             )}
                         </div>
 
-                        {/* Sidebar Ad (Vertical 160x300) */}
+                        {/* Keep both 300×250 sidebar banners reachable through the main scroller. */}
                         <div className="mt-2 flex justify-center shrink-0 pb-10 lg:pb-0">
                             <AdBanner placement="streamSidebar" />
                         </div>

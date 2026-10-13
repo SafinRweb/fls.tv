@@ -59,8 +59,10 @@ Use Node.js 20.9 or later, as required by the installed Next.js version.
 
 Run `npm test`, `npm run lint`, and `npm run build` before deployment. The regression tests cover player connection preservation, empty sources, match sorting/status, and adblock detection.
 
-HilltopAds tags are centralized in `src/lib/ads.ts`. All former Adsterra scripts and links have been removed. Copy `.env.example` to `.env.local`, or set its variables in Vercel, to configure the approved HilltopAds zone tags. Rebuild/redeploy after changing `NEXT_PUBLIC_*` values. Empty placements render nothing.
+HilltopAds tags are stored exactly as issued in `src/lib/hilltopads-tags.json` and mapped to placements in `src/lib/ads.ts`. All former Adsterra scripts and links have been removed. The verified website has six approved zones: Popunder, In-Page Push, Video Slider, and three 300×250 banners. Home, Matches, and stream pages each use the three banner zones once. Banners load near the viewport and fit narrow screens. The stream support button uses the issued sponsored DirectLink.
 
-The HilltopAds ownership meta tag is prepared in `src/app/layout.tsx`. Publish it to `flstv.vercel.app`, complete verification in the publisher dashboard, then create the ad zones and install their exact tags.
+Website 924367 (`flstv.vercel.app`) is verified with Non-Mainstream/18+ ads enabled. Its ownership and recommended referrer meta tags are in `src/app/layout.tsx`. The dashboard currently rejects additional zones; a limit-increase request has been sent to support for routing to the publisher manager. Additional Matches Bottom and Footer placements remain empty until more zones are approved.
+
+Copy `.env.example` to `.env.local`, or set its variables in Vercel, to override the installed tags with other approved HilltopAds tags. Rebuild/redeploy after changing `NEXT_PUBLIC_*` values. Unconfigured extra placements render nothing. These are public embed codes, not account credentials.
 
 See [UPDATES.md](UPDATES.md) for the 14 October 2026 changes and ad configuration.

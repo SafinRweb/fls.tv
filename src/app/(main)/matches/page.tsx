@@ -35,7 +35,7 @@ export default async function MatchesPage({
         <div className="flex-grow max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
 
             {/* Sidebar: Leagues Filter */}
-            <aside className="w-full md:w-[260px] flex-shrink-0">
+            <aside className="w-full md:w-[350px] flex-shrink-0">
                 <div className="sticky top-24 bg-layer/50 backdrop-blur-md border border-white/10 rounded-3xl p-6">
                     <div className="flex items-center space-x-2 text-accent mb-6 border-b border-white/5 pb-4">
                         <Filter className="w-5 h-5" />
@@ -71,8 +71,8 @@ export default async function MatchesPage({
                         })}
                     </nav>
 
-                    {/* Position B: Sidebar vertical Ad (hidden on mobile, visible on desktop) */}
-                    <div className="mt-8 justify-center hidden md:flex">
+                    {/* Third banner zone, also available beneath the filters on mobile. */}
+                    <div className="mt-8 justify-center flex">
                         <AdBanner placement="matchesSidebar" />
                     </div>
                 </div>

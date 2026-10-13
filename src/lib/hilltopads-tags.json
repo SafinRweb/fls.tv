@@ -1,0 +1,21 @@
+{
+  "website": "flstv.vercel.app",
+  "websiteId": "924367",
+  "popunder": "<script>\n(function(phjro){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = phjro || {};\ns.src = \"\\/\\/slimgather.com\\/cGDP9.6\\/bh2r5JlOSBWBQ\\/9RNjz\\/UyxUNMjpM\\/yNOQSj0i3ZNMTrE_2DM\\/znMZzK\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>",
+  "inPage": "<script>\n(function(ydyo){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = ydyo || {};\ns.src = \"\\/\\/nervousstroke.com\\/b\\/XlVzs.dJGolj0zYiWdcT\\/terme9\\/uIZ_U\\/lFkUPKTxcy1KM-TmY\\/zwNgj\\/UStONczYUkxTNCjqM\\/2dOaQ_\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>",
+  "video": "<script>\n(function(qidky){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = qidky || {};\ns.src = \"\\/\\/nervousstroke.com\\/bhXNV.sTdDGKli0AYsWjcD\\/Ge\\/m\\/9huqZcUJlRkePzTrcG1\\/McTZY\\/zfOxD\\/EItBNBz\\/UsxmNWjDMn4bNhQF\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>",
+  "directLink": "https://thoroughgear.com/be3HVk0.PB3/ppv/b-m/VnJaZbDr0/3hNCTDEZ2tMyz_Ix5FLdTrcG1/MGTKYczPMnzyMc",
+  "banners": {
+    "primary": "<script>\n(function(mymwao){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = mymwao || {};\ns.src = \"\\/\\/nervousstroke.com\\/bqX.VQs\\/d_Gylw0FY\\/WfcC\\/reXmn9MuGZIUJl\\/kVPGTWc\\/1\\/MgTvYL0tM\\/DjU\\/tXNez\\/U\\/xgNSj\\/QHwWO\\/QE\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>",
+    "secondary": "<script>\n(function(xdspl){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = xdspl || {};\ns.src = \"\\/\\/nervousstroke.com\\/b.XFVOscdXGMlG0\\/Y_W\\/cq\\/uenmn9aumZrUBlokyPMTic\\/1\\/MJTBYW0mMvjaENt\\/NPzNUlx\\/N\\/jOQBygNVQF\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>",
+    "tertiary": "<script>\n(function(vsbpe){\nvar d = document,\n    s = d.createElement('script'),\n    l = d.currentScript || d.scripts[d.scripts.length - 1];\ns.settings = vsbpe || {};\ns.src = \"\\/\\/nervousstroke.com\\/bDX.V\\/s\\/drGMl\\/0SYNWwcw\\/Iejmu9Zu\\/Z-UIl\\/kfPvTYc_1fMITUYf0aMNzDcRthNpzrUpxKNEjAQM0\\/MNQe\";\ns.async = true;\ns.referrerPolicy = 'no-referrer-when-downgrade';\nl.parentNode.insertBefore(s, l);\n})({})\n</script>"
+  },
+  "zoneIds": {
+    "popunder": "7516329",
+    "inPage": "7516365",
+    "video": "7516381",
+    "homeHero": "7516405",
+    "homeDivider": "7516421",
+    "homeBottom": "7516437"
+  }
+}

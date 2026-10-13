@@ -20,6 +20,7 @@ function loadTs(relativePath, globals = {}, cache = new Map()) {
     const localRequire = name => {
         if (name.startsWith(".") || name.startsWith("@/")) {
             const target = name.startsWith("@/") ? path.join(root, "src", name.slice(2)) : path.resolve(path.dirname(filename), name);
+            if (target.endsWith(".json")) return JSON.parse(fs.readFileSync(target, "utf8"));
             const file = [target + ".ts", target + ".tsx"].find(candidate => fs.existsSync(candidate));
             return loadTs(path.relative(root, file), globals, cache);
         }
@@ -35,6 +36,19 @@ function loadTs(relativePath, globals = {}, cache = new Map()) {
 
 const streams = loadTs("src/lib/stream-sources.ts");
 const source = (id, url) => ({ id, name: "English", url, quality: "HD", region: "Primary" });
+
+test("approved banner zones are unique on each page, including the shared footer", () => {
+    const { ADS_CONFIG } = loadTs("src/lib/ads.ts", { process: { env: {} } });
+    for (const page of ["home", "matches", "stream"]) {
+        const snippets = Object.entries(ADS_CONFIG.placements)
+            .filter(([placement, snippet]) => (placement.startsWith(page) || placement === "footer") && snippet)
+            .map(([, snippet]) => snippet);
+        assert.equal(snippets.length, 3);
+        assert.equal(new Set(snippets).size, snippets.length);
+    }
+    assert.ok(ADS_CONFIG.popunder && ADS_CONFIG.inPage && ADS_CONFIG.video);
+    assert.equal(new URL(ADS_CONFIG.smartlinkUrl).protocol, "https:");
+});
 
 test("a rotated URL cannot interrupt the active connection", () => {
     const current = source("admin:match:1", "https://embed.example/old-token");

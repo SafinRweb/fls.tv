@@ -22,6 +22,7 @@ const oswald = Oswald({
 export const metadata: Metadata = {
   title: "fls.tv | Live Football In Home.",
   description: "Watch live football and explore upcoming matches on fls.tv.",
+  referrer: "no-referrer-when-downgrade",
   other: {
     "70c77a3486e82b6349122d33bc659ebda039de5f": "70c77a3486e82b6349122d33bc659ebda039de5f",
   },
