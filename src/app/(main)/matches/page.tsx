@@ -24,12 +24,12 @@ export default async function MatchesPage({
     const filteredLive =
         selectedLeague === "all"
             ? liveMatches
-            : liveMatches.filter((m) => m.leagueId === selectedLeague || m.leagueName.toLowerCase().replace(/\\s+/g, '-') === selectedLeague);
+            : liveMatches.filter((m) => m.leagueId === selectedLeague);
 
     const filteredUpcoming =
         selectedLeague === "all"
             ? upcomingMatches
-            : upcomingMatches.filter((m) => m.leagueId === selectedLeague || m.leagueName.toLowerCase().replace(/\\s+/g, '-') === selectedLeague);
+            : upcomingMatches.filter((m) => m.leagueId === selectedLeague);
 
     return (
         <div className="flex-grow max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
@@ -73,13 +73,14 @@ export default async function MatchesPage({
 
                     {/* Position B: Sidebar vertical Ad (hidden on mobile, visible on desktop) */}
                     <div className="mt-8 justify-center hidden md:flex">
-                        <AdBanner type="sidebar" />
+                        <AdBanner placement="matchesSidebar" />
                     </div>
                 </div>
             </aside>
 
             {/* Main Content: Matches Grid */}
             <main className="flex-grow flex flex-col min-w-0">
+                <AdBanner placement="matchesTop" />
 
                 {/* Live Matches Section */}
                 <div className="mb-12">
@@ -118,7 +119,7 @@ export default async function MatchesPage({
                 </div>
 
                 {/* Position C: Matches page list divider horizontal Ad */}
-                <AdBanner type="horizontal" />
+                <AdBanner placement="matchesDivider" />
 
                 {/* Upcoming Matches Section */}
                 <div>
@@ -173,6 +174,7 @@ export default async function MatchesPage({
                     )}
                 </div>
 
+                <AdBanner placement="matchesBottom" />
             </main>
         </div>
     );

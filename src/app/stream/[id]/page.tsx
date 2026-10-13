@@ -2,6 +2,7 @@ import { getMatchDetail } from "@/lib/api";
 import { detectLeague } from "@/lib/leagues";
 import { notFound } from "next/navigation";
 import { StreamClient } from "@/components/stream/StreamClient";
+import { toStreamServers } from "@/lib/stream-sources";
 
 export const dynamic = "force-dynamic";
 
@@ -39,19 +40,11 @@ export default async function StreamPage({ params }: { params: Promise<{ id: str
     };
 
     // Convert sources to the server shape StreamClient expects
-    const servers = detail.sources.map((s, idx) => ({
-        id: s.id || `src-${idx}`,
-        name: s.name,
-        url: s.url,
-        quality: s.hd ? "HD" : "SD",
-        latency: idx === 0 ? "low" : "normal",
-        region: idx === 0 ? "Primary" : `Backup ${idx}`,
-        viewers: s.viewers || 0,
-    }));
+    const servers = toStreamServers(detail.sources);
 
     return (
         <div className="w-screen h-screen bg-base">
-            <StreamClient match={match} servers={servers} />
+            <StreamClient key={match.id} match={match} servers={servers} />
         </div>
     );
 }

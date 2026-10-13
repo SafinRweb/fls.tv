@@ -1,103 +1,116 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { calculateLiveMinute, type Match } from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Server, Globe2, ChevronLeft, MapPin, AlertTriangle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { calculateLiveMinute, getMatchStatus, type Match } from "@/lib/api";
+import { normalizeStreamSources, toStreamServers, preserveStreamConnection, type StreamServer } from "@/lib/stream-sources";
+import { ADS_CONFIG } from "@/lib/ads";
+import { motion } from "framer-motion";
+import { Activity, Server, Globe2, ChevronLeft, MapPin, RefreshCw } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 import { AdBanner } from "@/components/ui/AdBanner";
 
 interface StreamClientProps {
     match: Match;
-    servers: {
-        id: string;
-        name: string;
-        url: string;
-        quality: string;
-        latency: string;
-        region: string;
-        viewers?: number;
-    }[];
+    servers: StreamServer[];
 }
 
 export function StreamClient({ match, servers }: StreamClientProps) {
     const [mounted, setMounted] = useState(false);
     const [activeServersList, setActiveServersList] = useState(servers);
-    const [activeServer, setActiveServer] = useState(servers[0]);
+    const [activeServer, setActiveServer] = useState<StreamServer | undefined>(servers[0]);
+    const [playerRevision, setPlayerRevision] = useState(0);
     const [isIframeLoaded, setIsIframeLoaded] = useState(false);
-    const [autoSwitchToast, setAutoSwitchToast] = useState<string | null>(null);
+    const [slowLoading, setSlowLoading] = useState(false);
+    const [pollingError, setPollingError] = useState(false);
+    const refreshRef = useRef<(() => Promise<void>) | null>(null);
     const [liveData, setLiveData] = useState({
         homeScore: match.homeScore,
         awayScore: match.awayScore,
         liveMinute: match.liveMinute,
-        status: match.status
+        status: match.status,
     });
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    useEffect(() => { setMounted(true); }, []);
 
-    // Poll for live score updates and stream health every 30 seconds if the match is live
     useEffect(() => {
-        if (liveData.status !== "live") return;
-
-        const interval = setInterval(async () => {
+        let cancelled = false;
+        let inFlight = false;
+        let controller: AbortController | undefined;
+        const refresh = async () => {
+            const now = Date.now();
+            setLiveData(current => ({
+                ...current,
+                status: getMatchStatus(match.timestamp, now),
+                liveMinute: calculateLiveMinute(match.timestamp, now),
+            }));
+            if (inFlight || document.visibilityState === "hidden" || !navigator.onLine) return;
+            inFlight = true;
+            controller = new AbortController();
+            const timeout = setTimeout(() => controller?.abort(), 10000);
             try {
-                const res = await fetch(`https://api.sportsrc.org/?data=detail&id=${encodeURIComponent(match.id)}&category=football`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.data) {
-                        const d = data.data;
-                        const dateMs = typeof d.date === "number" ? d.date : parseInt(d.date) || 0;
-                        const now = Date.now();
-                        let status: "live" | "upcoming" | "finished";
-                        if (dateMs <= now && now - dateMs < 3 * 60 * 60 * 1000) status = "live";
-                        else if (dateMs > now) status = "upcoming";
-                        else status = "finished";
-
-                        const liveMinute = calculateLiveMinute(dateMs, now);
-
-                        setLiveData({
-                            homeScore: d.scores?.home,
-                            awayScore: d.scores?.away,
-                            liveMinute,
-                            status
-                        });
-
-                        // Dynamic stream validation & auto-switching logic
-                        if (Array.isArray(d.sources)) {
-                            const newServers = d.sources.map((s: any, idx: number) => ({
-                                id: s.id ? `${s.id}-${idx}` : `src-${idx}`,
-                                name: s.language || s.name || `Source ${idx + 1}`,
-                                url: s.url || s.embedUrl || s.src || "",
-                                quality: s.hd ? "HD" : "SD",
-                                latency: idx === 0 ? "low" : "normal",
-                                region: idx === 0 ? "Primary" : `Backup ${idx}`,
-                                viewers: s.viewers || 0,
-                            }));
-
-                            setActiveServersList(newServers);
-
-                            // Detect if the current active server was removed or went offline
-                            const stillExists = newServers.some((srv: any) => srv.url === activeServer.url);
-                            if (!stillExists && newServers.length > 0) {
-                                const nextBackup = newServers[0];
-                                setAutoSwitchToast(`Server offline. Auto-switching to ${nextBackup.name}...`);
-                                setActiveServer(nextBackup);
-                                setIsIframeLoaded(false);
-                                setTimeout(() => setAutoSwitchToast(null), 5000);
-                            }
-                        }
-                    }
+                const response = await fetch(`https://api.sportsrc.org/?data=detail&id=${encodeURIComponent(match.id)}&category=football`, { signal: controller.signal });
+                if (!response.ok) throw new Error("Source refresh failed");
+                const data = await response.json();
+                if (cancelled) return;
+                if (!data?.data || data.success === false) throw new Error("No match details");
+                const detail = data.data;
+                const dateMs = Number(detail.date) || match.timestamp;
+                const checkedAt = Date.now();
+                setLiveData({
+                    homeScore: detail.scores?.home,
+                    awayScore: detail.scores?.away,
+                    liveMinute: calculateLiveMinute(dateMs, checkedAt),
+                    status: getMatchStatus(dateMs, checkedAt),
+                });
+                if (Array.isArray(detail.sources)) {
+                    const nextServers = toStreamServers(normalizeStreamSources(detail.sources));
+                    setActiveServersList(nextServers);
+                    setActiveServer(current => preserveStreamConnection(current, nextServers));
                 }
+                setPollingError(false);
             } catch {
-                // Ignore fetch errors during polling
+                if (!cancelled) setPollingError(true);
+            } finally {
+                clearTimeout(timeout);
+                inFlight = false;
             }
-        }, 30000);
+        };
+        refreshRef.current = refresh;
+        void refresh();
+        const interval = setInterval(() => void refresh(), 30000);
+        const onVisible = () => { if (document.visibilityState === "visible") void refresh(); };
+        const onOnline = () => void refresh();
+        document.addEventListener("visibilitychange", onVisible);
+        window.addEventListener("online", onOnline);
+        return () => {
+            cancelled = true;
+            controller?.abort();
+            clearInterval(interval);
+            refreshRef.current = null;
+            document.removeEventListener("visibilitychange", onVisible);
+            window.removeEventListener("online", onOnline);
+        };
+    }, [match.id, match.timestamp]);
 
-        return () => clearInterval(interval);
-    }, [match.id, liveData.status, activeServer.url]);
+    useEffect(() => {
+        setSlowLoading(false);
+        if (!activeServer || isIframeLoaded) return;
+        const timer = setTimeout(() => setSlowLoading(true), 15000);
+        return () => clearTimeout(timer);
+    }, [activeServer, playerRevision, isIframeLoaded]);
+
+    const chooseServer = (server: StreamServer) => {
+        setActiveServer(server);
+        setIsIframeLoaded(false);
+        setPlayerRevision(current => current + 1);
+    };
+
+    const reloadPlayer = () => {
+        if (!activeServer) return;
+        const latest = activeServersList.find(server => server.id === activeServer.id);
+        chooseServer(latest || activeServer);
+    };
 
     if (!mounted) {
         return (
@@ -116,21 +129,6 @@ export function StreamClient({ match, servers }: StreamClientProps) {
     return (
         <div className="relative w-full h-screen bg-base text-white selection:bg-accent selection:text-base overflow-hidden">
             
-            {/* Auto Switch Toast Notification */}
-            <AnimatePresence>
-                {autoSwitchToast && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20, x: "-50%" }}
-                        animate={{ opacity: 1, y: 0, x: "-50%" }}
-                        exit={{ opacity: 0, y: -20, x: "-50%" }}
-                        className="fixed top-24 left-1/2 -translate-x-1/2 z-[60] bg-orange-500 border border-orange-400 text-white font-display font-bold uppercase tracking-wider text-xs px-6 py-3.5 rounded-full shadow-[0_0_30px_rgba(249,115,22,0.4)] flex items-center gap-3 backdrop-blur-md"
-                    >
-                        <span className="w-2.5 h-2.5 bg-white rounded-full animate-ping" />
-                        <span>{autoSwitchToast}</span>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
             <div className="relative w-full h-full flex flex-col">
 
                 {/* Background layer */}
@@ -147,6 +145,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                     <div className="flex items-center gap-4 sm:space-x-6">
                         <Link
                             href="/"
+                            aria-label="Back to matches"
                             className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:-translate-x-1 transition-all backdrop-blur cursor-pointer"
                         >
                             <ChevronLeft className="w-6 h-6" />
@@ -185,21 +184,20 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                 </header>
 
                 {/* Center Layout Container */}
-                <main className="relative flex-1 flex flex-col lg:flex-row items-center lg:justify-center px-4 pt-4 sm:pt-6 lg:pt-8 pb-6 z-10 w-full overflow-y-auto lg:overflow-hidden overflow-x-hidden">
+                <main className="relative flex-1 min-h-0 flex flex-col lg:flex-row items-center lg:justify-center px-4 pt-4 sm:pt-6 lg:pt-8 pb-6 z-10 w-full overflow-y-auto overflow-x-hidden">
 
                     {/* Left/Center: Video Player OR Huge text */}
-                    <div className="flex-1 w-full flex flex-col items-center justify-center relative lg:pr-8 lg:h-full lg:overflow-hidden">
-                        {liveData.status === "live" ? (
+                    <div className="flex-1 w-full flex flex-col items-center justify-center relative lg:pr-8 lg:self-start">
+                        {liveData.status !== "upcoming" && activeServer ? (
                             <div className="w-full max-w-5xl flex flex-col space-y-4 lg:space-y-6">
-                                {/* Smartlink Backup Player Link */}
-                                <a
-                                    href="https://www.effectivecpmnetwork.com/az16ezdd5q?key=9a7b35e9b85a0bf205768ccb3366a7dc"
+                                {ADS_CONFIG.smartlinkUrl && <a
+                                    href={ADS_CONFIG.smartlinkUrl}
                                     target="_blank"
-                                    rel="noopener noreferrer"
+                                    rel="noopener noreferrer sponsored"
                                     className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-accent to-blue-600 hover:from-accent hover:to-blue-700 text-white font-display font-black uppercase tracking-widest text-xs sm:text-sm shadow-[0_0_20px_rgba(0,212,255,0.2)] hover:shadow-[0_0_35px_rgba(0,212,255,0.4)] transition-all animate-pulse duration-1000 z-40 text-center cursor-pointer"
                                 >
-                                    <span>⚡ WATCH IN FULL HD (FAST BACKUP SERVER)</span>
-                                </a>
+                                    <span>Support fls.tv — sponsored link</span>
+                                </a>}
 
                                 <div className="w-full aspect-video lg:max-h-[calc(100vh-280px)] bg-[#0a0a0a] rounded-xl overflow-hidden shadow-[0_0_100px_rgba(0,212,255,0.05)] border border-white/10 relative z-40">
                                     {!isIframeLoaded && (
@@ -213,6 +211,8 @@ export function StreamClient({ match, servers }: StreamClientProps) {
 
                                     {activeServer?.url && (
                                         <iframe
+                                            key={playerRevision}
+                                            title={`${match.title} — ${activeServer.name}`}
                                             src={activeServer.url}
                                             onLoad={() => setIsIframeLoaded(true)}
                                             className={clsx("w-full h-full relative z-10 transition-opacity duration-1000", isIframeLoaded ? "opacity-100" : "opacity-0")}
@@ -226,8 +226,16 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                     )}
                                 </div>
 
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <p className="text-xs text-soft" role="status">
+                                        {slowLoading ? "Taking longer to load? Reload the player or choose another server." : "Stream stopped? Reload the player or choose another server."}
+                                    </p>
+                                    <button type="button" onClick={reloadPlayer} className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm text-white hover:border-accent hover:text-accent">
+                                        <RefreshCw className="h-4 w-4" aria-hidden="true" /> Reload player
+                                    </button>
+                                </div>
                                 {/* Position A: Stream page under player ad */}
-                                <AdBanner type="horizontal" />
+                                <AdBanner placement="streamBelow" />
                             </div>
                         ) : (
                             <motion.div
@@ -236,7 +244,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                 className="text-center"
                             >
                                 <h2 className="text-3xl sm:text-4xl md:text-6xl font-display font-black tracking-tight text-white/50 uppercase text-balance">
-                                    Match Starts Soon
+                                    {liveData.status === "upcoming" ? "Match Starts Soon" : liveData.status === "finished" ? "Match has ended" : "Waiting for streams"}
                                 </h2>
                             </motion.div>
                         )}
@@ -249,15 +257,14 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                             <span>Available Streams</span>
                         </div>
 
+                        {pollingError && <p role="status" className="mb-3 text-xs text-soft">{activeServer ? "Could not refresh the source list. Your current connection is unchanged." : "Could not refresh the source list. We will check again automatically."}</p>}
+                        {!activeServer && <button type="button" onClick={() => void refreshRef.current?.()} className="mb-3 text-sm text-accent">Check for streams</button>}
                         <div className="flex-1 flex flex-col space-y-3 w-full lg:overflow-y-auto lg:pr-2 pr-0 custom-scrollbar pb-4">
                             {activeServersList.length > 0 ? activeServersList.map((server, idx) => (
                                 <button
                                     key={server.id || idx}
                                     onClick={() => {
-                                        if (activeServer.id !== server.id) {
-                                            setActiveServer(server);
-                                            setIsIframeLoaded(false);
-                                        }
+                                        chooseServer(server);
                                     }}
                                     className={clsx(
                                         "w-full text-left p-4 rounded-xl border backdrop-blur-md transition-all duration-300 group flex items-center justify-between",
@@ -268,7 +275,7 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                 >
                                     <div className="flex flex-col min-w-0 pr-2">
                                         <span className={clsx(
-                                            "font-bold font-display text-base truncate",
+                                            "font-bold font-display text-[16px] truncate",
                                             activeServer?.id === server.id ? "text-accent" : "text-white"
                                         )}>{server.name}</span>
                                         <span className="text-[11px] text-soft mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -284,26 +291,21 @@ export function StreamClient({ match, servers }: StreamClientProps) {
                                         <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/10 text-white">
                                             {server.quality}
                                         </span>
-                                        <span className={clsx(
-                                            "text-[10px] mt-2 font-bold uppercase tracking-widest",
-                                            server.latency === "low" ? "text-green-400" : "text-yellow-400"
-                                        )}>
-                                        {server.latency} latency
-                                    </span>
-                                </div>
+                                    </div>
                             </button>
                             )) : (
-                                <div className="hidden sm:block w-full p-6 rounded-xl border border-white/5 bg-layer/20 backdrop-blur-md text-center">
-                                    <p className="text-soft text-sm uppercase tracking-widest font-bold">No streams available yet</p>
-                                    <p className="text-white/30 text-xs mt-2">Streams become available when the match goes live.</p>
+                                <div className="w-full p-6 rounded-xl border border-white/5 bg-layer/20 backdrop-blur-md text-center">
+                                    <p className="text-soft text-sm uppercase tracking-widest font-bold">{activeServer ? "No other streams listed" : "No streams available yet"}</p>
+                                    <p className="text-white/30 text-xs mt-2">{activeServer ? "Your current connection is unchanged. We will keep checking for alternatives." : "We will check again automatically. You can also check for streams above."}</p>
                                 </div>
                             )}
                         </div>
 
                         {/* Sidebar Ad (Vertical 160x300) */}
                         <div className="mt-2 flex justify-center shrink-0 pb-10 lg:pb-0">
-                            <AdBanner type="160x300" />
+                            <AdBanner placement="streamSidebar" />
                         </div>
+                        <AdBanner placement="streamBottom" />
                     </div>
                 </main>
 

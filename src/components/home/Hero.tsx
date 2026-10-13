@@ -8,7 +8,7 @@ import { useLoading } from "@/components/layout/LoadingProvider";
 export function Hero() {
     const { isPageLoaded } = useLoading();
     return (
-        <section className="relative min-h-[450px] md:min-h-[550px] flex items-center justify-center overflow-hidden pb-16 pt-24 md:pb-20 md:pt-28">
+        <section className="relative min-h-[380px] md:min-h-[460px] flex items-center justify-center overflow-hidden pb-12 pt-24 md:pb-16 md:pt-28">
 
             {/* Subtle glow specifically for the hero content */}
             <motion.div
@@ -32,15 +32,6 @@ export function Hero() {
                         In Home
                     </span>
                 </motion.h1>
-
-                <motion.p
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={isPageLoaded ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                    className="mt-8 text-lg md:text-xl text-soft max-w-2xl text-balance"
-                >
-                    The most completely immersive sports broadcast experience. Zero lag, cinematic streams, and no delay.
-                </motion.p>
 
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}

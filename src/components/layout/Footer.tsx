@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdBanner } from "@/components/ui/AdBanner";
 
 const MAJOR_LEAGUES = [
     { name: "Premier League", href: "/matches?league=premier-league" },
@@ -12,6 +13,7 @@ const MAJOR_LEAGUES = [
 export function Footer() {
     return (
         <footer className="w-full border-t border-white/5 bg-base mt-24 relative overflow-hidden">
+            <AdBanner placement="footer" />
             {/* Subtle top glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
 

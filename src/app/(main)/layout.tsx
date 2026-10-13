@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LoadingProvider, PageLoadTrigger } from "@/components/layout/LoadingProvider";
+import { MatchRefresh } from "@/components/home/MatchRefresh";
 
 export default function MainLayout({
     children,
@@ -15,6 +16,7 @@ export default function MainLayout({
             </main>
             <Footer />
             <PageLoadTrigger />
+            <MatchRefresh />
         </LoadingProvider>
     );
 }

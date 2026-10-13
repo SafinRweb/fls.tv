@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Oswald } from "next/font/google";
 import "./globals.css";
-import Script from "next/script";
+import { GlobalAds } from "@/components/layout/GlobalAds";
+import { AdBlockGate } from "@/components/layout/AdBlockGate";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +21,10 @@ const oswald = Oswald({
 
 export const metadata: Metadata = {
   title: "fls.tv | Live Football In Home.",
-  description: "Premium live football streaming platform with zero lag and cinematic experience.",
+  description: "Watch live football and explore upcoming matches on fls.tv.",
+  other: {
+    "70c77a3486e82b6349122d33bc659ebda039de5f": "70c77a3486e82b6349122d33bc659ebda039de5f",
+  },
 };
 
 export default function RootLayout({
@@ -40,16 +44,9 @@ export default function RootLayout({
           {children}
         </div>
 
-        {/* Adsterra Popunder */}
-        <Script 
-          src="https://pl29757567.effectivecpmnetwork.com/a9/1b/97/a91b9725da5d701ed1e28dbdeedac1a2.js"
-          strategy="afterInteractive"
-        />
-        {/* Adsterra Social Bar */}
-        <Script 
-          src="https://pl29757570.effectivecpmnetwork.com/36/2a/1d/362a1db63ab722b8c2e62906a1b253b4.js"
-          strategy="afterInteractive"
-        />
+        <AdBlockGate />
+
+        <GlobalAds />
       </body>
     </html>
   );

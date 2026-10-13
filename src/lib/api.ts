@@ -1,4 +1,5 @@
 import { detectLeague, getAllKnownLeagues } from "./leagues";
+import { normalizeStreamSources, type StreamSource } from "./stream-sources";
 export interface Team {
     id: string | number;
     name: string;
@@ -74,21 +75,25 @@ const fetchApi = async <T>(params: string): Promise<T | null> => {
 // ——— Helpers ———
 
 /** Determine if a match is currently live (started within last ~3 hours) */
-const isMatchLive = (dateMs: number): boolean => {
-    const now = Date.now();
+const isMatchLive = (dateMs: number, now = Date.now()): boolean => {
     // A football match lasts about 2 hours. Consider a match "live" if it started
     // within the last 3 hours and the start time is in the past.
     return dateMs <= now && now - dateMs < 3 * 60 * 60 * 1000;
 };
 
+export const getMatchStatus = (dateMs: number, now = Date.now()): Match["status"] => {
+    if (isMatchLive(dateMs, now)) return "live";
+    return dateMs > now ? "upcoming" : "finished";
+};
+
 /** Calculate approximate live football minute including halftime offset */
 export const calculateLiveMinute = (dateMs: number, now: number): string | undefined => {
-    if (!isMatchLive(dateMs)) return undefined;
+    if (!isMatchLive(dateMs, now)) return undefined;
 
     const elapsed = Math.floor((now - dateMs) / 60000);
 
     if (elapsed <= 45) {
-        return "Just Started";
+        return "First Half";
     } else if (elapsed > 45 && elapsed <= 60) {
         return "Halftime";
     } else if (elapsed > 60 && elapsed <= 105) {
@@ -159,9 +164,9 @@ const sortMatchesByPriority = (matches: Match[]) => {
         const indexA = getLeaguePriority(a.leagueName, a.title);
         const indexB = getLeaguePriority(b.leagueName, b.title);
 
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
+        if (indexA !== -1 && indexB !== -1 && indexA !== indexB) return indexA - indexB;
+        if (indexA !== -1 && indexB === -1) return -1;
+        if (indexB !== -1 && indexA === -1) return 1;
 
         // Popular matches first
         if (a.popular && !b.popular) return -1;
@@ -186,7 +191,9 @@ const sortMatchesChronologically = (matches: Match[]): Match[] => {
         // Tertiary sort: Priority Leagues
         const aIndex = getLeaguePriority(a.leagueName, a.title);
         const bIndex = getLeaguePriority(b.leagueName, b.title);
-        if (aIndex !== bIndex) return aIndex - bIndex;
+        const aPriority = aIndex === -1 ? PRIORITY_LEAGUES.length : aIndex;
+        const bPriority = bIndex === -1 ? PRIORITY_LEAGUES.length : bIndex;
+        if (aPriority !== bPriority) return aPriority - bPriority;
 
         return 0;
     });
@@ -229,7 +236,7 @@ export interface MatchDetail {
     id: string;
     title: string;
     poster?: string;
-    sources: { id: string; name: string; url: string; hd?: boolean; viewers?: number }[];
+    sources: StreamSource[];
     homeTeam: Team;
     awayTeam: Team;
     status: "live" | "upcoming" | "finished";
@@ -247,15 +254,7 @@ export const getMatchDetail = async (matchId: string): Promise<MatchDetail | nul
 
     if (data && data.data) {
         const d = data.data;
-        const sources = Array.isArray(d.sources)
-            ? d.sources.map((s: any, idx: number) => ({
-                id: s.id ? `${s.id}-${idx}` : `src-${idx}`,
-                name: s.language || s.name || `Source ${idx + 1}`,
-                url: s.url || s.embedUrl || s.src || "",
-                hd: s.hd ?? false,
-                viewers: s.viewers ?? 0,
-            }))
-            : [];
+        const sources = normalizeStreamSources(d.sources);
 
         const dateMs = typeof d.date === "number" ? d.date : parseInt(d.date) || 0;
         const now = Date.now();

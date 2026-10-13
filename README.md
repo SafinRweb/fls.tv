@@ -1,12 +1,14 @@
 # fls.tv | Live Football In Home.
 
-fls.tv is a premium, modern web application designed to deliver an immersive and cinematic football tracking and streaming experience. Built with performance and aesthetics in mind, it provides real-time match data, chronological upcoming schedules, and a dedicated distraction-free viewing environment.
+fls.tv is a football schedule and streaming interface built with Next.js. It fetches events and iframe sources from SportSRC and adds local competition labels, match filters, and a responsive viewing page.
 
 ## ✨ Features
 
 - **Immersive Stream Player**: A dedicated, full-viewport cinema mode for watching matches with ambient background blurring to match the broadcast.
 - **Chronological Sorting**: Smart scheduling automatically bubbles the soonest upcoming matches to the top of your feed.
-- **Global Leagues Hub**: Browse through a curated gallery of the world's top football leagues with high-quality crests.
+- **Match Filters**: Browse live and upcoming events by competition, including events classified as Other.
+- **Stable Player Connection**: API refreshes preserve the playing iframe. Viewers can reload it or select a different source explicitly.
+- **Adblock Support Message**: A recheckable support dialog appears when local probes detect ad blocking; connectivity failures do not lock out viewers.
 - **Premium Dark UI**: A meticulously crafted interface heavily inspired by modern sports broadcasting UI standards, featuring neon glows, glassmorphism, and strict grid structures.
 - **Responsive Design**: Flawless layout scaling from ultra-wide desktop monitors down to mobile devices.
 
@@ -14,7 +16,7 @@ fls.tv is a premium, modern web application designed to deliver an immersive and
 
 This project was built with a cutting-edge front-end stack to ensure maximum performance and developer experience:
 
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
 - **Library**: [React 19](https://react.dev/)
 - **Styling**: [Tailwind CSS v3](https://tailwindcss.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
@@ -25,7 +27,7 @@ This project was built with a cutting-edge front-end stack to ensure maximum per
 
 ### Prerequisites
 
-Ensure you have Node.js 18+ installed.
+Use Node.js 20.9 or later, as required by the installed Next.js version.
 
 ### Installation
 
@@ -50,9 +52,15 @@ Ensure you have Node.js 18+ installed.
 ## 🏗️ Architecture Notes
 
 - **Data Layer**: The application features a robust internal data-fetching layer (`src/lib/api.ts`) that standardizes raw match data into clean TypeScript interfaces (`Match`, `Team`, `League`). It utilizes Next.js App Router's built-in fetch cache mechanisms for optimal performance and rate-limit protection.
-- **Component Design System**: Reusable UI primitives (like `MatchCard`, navigation pills, and glowing buttons) enforce strict design system rules across all pages.
-- **Dynamic League Detection**: The frontend intelligently maps match titles and team names to their parent league competitions to display the correct global crests dynamically.
+- **Navigation**: The logo returns home; a football icon opens `/matches`. Stream pages use a separate viewing layout. The former leagues and standings pages have been removed.
+- **League Detection**: `src/lib/leagues.ts` uses handwritten club aliases and UEFA rosters. These guesses are not official competition metadata. The hardcoded World Cup category has been removed.
 
-## 📄 License
+## Checks and advertising configuration
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Run `npm test`, `npm run lint`, and `npm run build` before deployment. The regression tests cover player connection preservation, empty sources, match sorting/status, and adblock detection.
+
+HilltopAds tags are centralized in `src/lib/ads.ts`. All former Adsterra scripts and links have been removed. Copy `.env.example` to `.env.local`, or set its variables in Vercel, to configure the approved HilltopAds zone tags. Rebuild/redeploy after changing `NEXT_PUBLIC_*` values. Empty placements render nothing.
+
+The HilltopAds ownership meta tag is prepared in `src/app/layout.tsx`. Publish it to `flstv.vercel.app`, complete verification in the publisher dashboard, then create the ad zones and install their exact tags.
+
+See [UPDATES.md](UPDATES.md) for the 14 October 2026 changes and ad configuration.

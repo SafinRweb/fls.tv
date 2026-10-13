@@ -11,7 +11,6 @@ export default async function Home() {
     getLiveMatches(),
     getUpcomingMatches(),
     getAllLeagues(),
-    new Promise(resolve => setTimeout(resolve, 2000)) // Enforce 2s safety minimum load time
   ]);
 
   return (
@@ -20,19 +19,19 @@ export default async function Home() {
 
       {/* Mid Banner (under Hero / above Live Matches) */}
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <AdBanner type="468x60" />
+        <AdBanner placement="homeHero" />
       </div>
 
       <LiveMatches matches={liveMatches} />
       
       {/* Position C: Homepage list divider horizontal Ad */}
-      <AdBanner type="horizontal" />
+      <AdBanner placement="homeDivider" />
       
       <UpcomingMatches matches={upcomingMatches} leagues={leagues} />
 
       {/* Bottom Native Ad Banner */}
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <AdBanner type="native" />
+        <AdBanner placement="homeBottom" />
       </div>
     </>
   );
