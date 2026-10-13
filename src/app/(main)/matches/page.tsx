@@ -1,7 +1,7 @@
 import { MatchCard } from "@/components/ui/MatchCard";
 import { getLiveMatches, getUpcomingMatches, getAllLeagues } from "@/lib/api";
 import Link from "next/link";
-import { format } from "date-fns";
+import { LocalMatchTime } from "@/components/ui/LocalMatchTime";
 import { Filter } from "lucide-react";
 import { AdBanner } from "@/components/ui/AdBanner";
 
@@ -142,12 +142,7 @@ export default async function MatchesPage({
                                 >
                                     <div className="flex items-center gap-6 sm:w-1/3">
                                         <div className="flex flex-col">
-                                            <span className="text-lg font-display font-bold text-accent">
-                                                {format(new Date(match.timestamp), "HH:mm")}
-                                            </span>
-                                            <span className="text-xs font-bold text-soft uppercase">
-                                                {format(new Date(match.timestamp), "dd MMM")}
-                                            </span>
+                                            <LocalMatchTime timestamp={match.timestamp} timeClassName="text-lg font-display font-bold text-accent" dateClassName="text-xs font-bold text-soft uppercase" />
                                         </div>
                                         <div className="h-8 border-l border-white/10" />
                                         <span className="text-xs font-bold uppercase tracking-widest text-soft group-hover:text-white transition-colors truncate">

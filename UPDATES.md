@@ -8,6 +8,7 @@
 - Removed the forced two-second homepage delay. Home and match listings refresh every minute while visible and online.
 - Added Other to the match filters so unmatched events can be browsed.
 - Corrected sorting of equal-time upcoming matches and same-league live fixtures.
+- Fixed a production hydration error caused by differing server/browser timezones. Home and Matches use a stable UTC hydration snapshot, then show match dates and times in the viewer's local timezone, with a timezone tooltip and accessible label.
 - Preserved the playing iframe when provider URLs rotate, sources disappear temporarily, or polling fails. The old automatic URL-based switching and misleading offline toast were removed.
 - Added an explicit Reload player button and retained manual server selection. Polling keeps the source list current without changing a playing connection. Reload uses the latest URL for that source when available.
 - Fixed rendering with an empty source list. New sources can populate an initially empty player. Upcoming pages now refresh status and sources and can transition to live at kickoff.
@@ -34,4 +35,4 @@ Measure revenue per 1,000 visits and per placement across similar match days, de
 
 ## Verification
 
-The regression suite covers unique banner-zone use per page, URL rotation, disappearing/empty source lists, empty-source rendering, source identity and URL validation, kickoff status, sorting, removed World Cup classification, and adblock clear/blocked/offline/network-error cases. Run it with `npm test` (or `node --test tests/regressions.test.mjs`). Lint, TypeScript, production build, and browser checks are completed as part of this update. Source preservation is verified against controlled iframe fixtures; this does not measure upstream video playback quality.
+All 18 regression tests pass, covering timezone/date rollover and the hydration snapshot, unique banner-zone use per page, URL rotation, disappearing/empty source lists, empty-source rendering, source identity and URL validation, kickoff status, sorting, removed World Cup classification, and adblock clear/blocked/offline/network-error cases. Run them with `npm test` (or `node --test tests/regressions.test.mjs`). Lint, TypeScript, production build, and browser checks are completed as part of this update. HilltopAds scripts and ad delivery were observed on the live domain. Source preservation is verified against controlled iframe fixtures; this does not measure upstream video playback quality.

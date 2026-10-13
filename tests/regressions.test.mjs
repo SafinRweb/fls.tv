@@ -37,6 +37,25 @@ function loadTs(relativePath, globals = {}, cache = new Map()) {
 const streams = loadTs("src/lib/stream-sources.ts");
 const source = (id, url) => ({ id, name: "English", url, quality: "HD", region: "Primary" });
 
+test("match times use explicit timezones, including a date rollover", () => {
+    const { formatMatchTime } = loadTs("src/lib/match-time.ts");
+    const timestamp = Date.UTC(2026, 9, 14, 20, 30);
+    const utc = formatMatchTime(timestamp, "UTC");
+    const dhaka = formatMatchTime(timestamp, "Asia/Dhaka");
+    assert.equal(utc.time, "20:30");
+    assert.equal(utc.date, "14 Oct");
+    assert.equal(dhaka.time, "02:30");
+    assert.equal(dhaka.date, "15 Oct");
+});
+
+test("server-rendered match times have a stable UTC hydration snapshot", () => {
+    const { LocalMatchTime } = loadTs("src/components/ui/LocalMatchTime.tsx");
+    const html = renderToString(React.createElement(LocalMatchTime, { timestamp: Date.UTC(2026, 9, 14, 20, 30), timeClassName: "", dateClassName: "" }));
+    assert.match(html, /20:30/);
+    assert.match(html, /14 Oct/);
+    assert.match(html, /Match time in UTC/);
+});
+
 test("approved banner zones are unique on each page, including the shared footer", () => {
     const { ADS_CONFIG } = loadTs("src/lib/ads.ts", { process: { env: {} } });
     for (const page of ["home", "matches", "stream"]) {

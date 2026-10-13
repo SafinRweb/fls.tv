@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { Match, League } from "@/lib/api";
-import { format } from "date-fns";
+import { LocalMatchTime } from "@/components/ui/LocalMatchTime";
 import { Calendar, ArrowRight, MapPin } from "lucide-react";
 import Link from "next/link";
 
@@ -69,12 +69,7 @@ export function UpcomingMatches({
                                     {/* Left: Date/Time + Stadium */}
                                     <div className="flex items-center gap-5 sm:w-2/5">
                                         <div className="flex flex-col min-w-[60px]">
-                                            <span className="text-xl font-display font-bold text-accent">
-                                                {format(new Date(match.timestamp), "HH:mm")}
-                                            </span>
-                                            <span className="text-xs font-bold text-soft uppercase tracking-wider">
-                                                {format(new Date(match.timestamp), "dd MMM")}
-                                            </span>
+                                            <LocalMatchTime timestamp={match.timestamp} timeClassName="text-xl font-display font-bold text-accent" dateClassName="text-xs font-bold text-soft uppercase tracking-wider" />
                                         </div>
                                         <div className="h-10 border-l border-white/10" />
                                         {match.stadium ? (
